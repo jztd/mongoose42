@@ -9,14 +9,14 @@ class SearchBox extends Component {
         focussed: PropTypes.bool,
         value: PropTypes.string,
         label: PropTypes.string,
-        onChange: PropTypes.func
+        parentFunction: PropTypes.func
     };
 
     static defaultProps = {
         focussed: false,
         value: '',
         label: '',
-        onChange: () => { return '' }
+        parentFunction: () => { return '' }
     };
 
     constructor(props) {
@@ -33,7 +33,7 @@ class SearchBox extends Component {
         const { id } = this.props;
         const value = event.target.value;
         this.setState({ value: value });
-        return this.props.onChange(id, value);
+        return this.props.parentFunction(id, value);
     }
 
     render() {

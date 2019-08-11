@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import SearchBox from './SearchBoxComponent';
+import SearchBox from './SearchBox';
 import Item from './Item';
 import './App.css';
 
@@ -14,13 +14,12 @@ class ItemLookup extends Component {
 
     handleItemChange = (componentName, itemName) => {
         this.setState({ currentItemSearch: itemName });
-    } 
+    }
 
     render() {
-        
         return (
             <div>
-                <SearchBox id="searchBox" label="Item Name" onChange={this.handleItemChange} />
+                <SearchBox id="searchBox" label="Item Name" parentFunction={this.handleItemChange}/>
                 <Item itemName={this.state.currentItemSearch} />
             </div>
         );
