@@ -55,7 +55,6 @@ class RuneApi {
         console.log('In getItemsFromCategory');
         return new Promise((resolve, reject) => {
             let request = new XMLHttpRequest();
-            request.withCredentials = true;
             request.open('GET', RuneApi.categoriesApi + "category=" + RuneApi.categories[category] + "&alpha=" + firstLetter + "&page=1", true);
             console.log(request);
             // console.log(RuneApi.categoriesApi + "category=" + this.categories[category] + "&alpha=" + firstLetter + "&page=1");
