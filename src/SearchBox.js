@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import RuneApi from './RunescapeApi';
 import './App.css';
 
 
 class SearchBox extends Component {
+    api = new RuneApi();
     static propTypes = {
         id: PropTypes.string.isRequired,
         focussed: PropTypes.bool,
@@ -51,6 +53,7 @@ class SearchBox extends Component {
                     onFocus={() => this.setState({ focussed: true })}
                     onBlur={() => this.setState({focussed: false})}
                 />
+
                 <label htmlFor={id} >
                     {label}
                 </label>

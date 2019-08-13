@@ -30,6 +30,7 @@ class Item extends Component {
 
     render() {
         const itemName = this.state.results;
+        console.log(itemName);
         return (
             <div>
                 {itemName}
