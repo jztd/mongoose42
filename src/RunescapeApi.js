@@ -9,11 +9,7 @@ class RuneApi {
         ConstructionProjects: 5
     };
 
-    currentItems = {
-        name: "Nature Rune",
-        description: "this is a rune of nature",
-
-    };
+    currentItems = [];
     getItemFromCache = (ItemSearchTerm) => {
         return this.currentItems;
     }
@@ -35,7 +31,7 @@ class RuneApi {
 
     getItem = (ItemSearchTerm) => {
         if (ItemSearchTerm === "") {
-            this.currentItems = {};
+            this.currentItems = [];
             return Promise.resolve("");
         }
         if (!this.currentItems.length === 0) {
@@ -50,34 +46,26 @@ class RuneApi {
             for (var i = 0; i < cats.length; i++) {
                 promises.push(this.getItemsFromCategory(cats[i], firstLetter));
             }
+
             Promise.all(promises)
                 .then((response) => {
-                    this.currentItems.push(response);
-                    return resolve(this.getItemFromCache(ItemSearchTerm));
+                    return resolve(response);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.log(`RuneServer Error: ${err}`);
                     return reject(err);
                 });
         });
     }
 
     getItemsFromCategory = (category, firstLetter) => {
-        return new Promise((resolve, reject) => {
-            let request = new XMLHttpRequest();
-            request.open('GET', RuneApi.categoriesApi + "category=" + RuneApi.categories[category] + "&alpha=" + firstLetter + "&page=1", true);
-            console.log(request);
-            request.onload = () => {
-                if (request.status == 200) {
-                    console.log(request.response);
-                    return resolve(request.response);
-                } else {
-                    return reject("callout bad");
-                }
+        return fetch(`/item?category=${RuneApi.categories[category]}&alpha=${firstLetter}&page=1`)
+            .then((response) => {
+                console.log('fetch returning');
+                return response.text();
             }
-
-            request.send();
-        });
+        );
+        // return fetch(`${RuneApi.categoriesApi}category=${RuneApi.categories[category]}&alpha=${firstLetter}&page=1`);
     }
 
 
