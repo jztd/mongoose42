@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import RuneApi from './RunescapeApi';
 import SearchBox from './SearchBox';
 import Item from './Item';
 import './App.css';

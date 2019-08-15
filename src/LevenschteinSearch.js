@@ -2,26 +2,35 @@ import RuneApi from './RunescapeApi';
 
 class LevenschteinSearch {
     //Compares two strings and returns an integer metric of similarity. 0 indicates exact match.
-    //TODO: Discover if it matters which term is larger. If it matters, sort the larger term into
-    //      the proper slot.
     levenshteinDistance = (searchTerm, existingTerm) => {
-        let rowAbv = new Array((searchTerm.length > existingTerm.length) ? searchTerm.length : existingTerm.length + 1);
-        const rowBel = new Array((searchTerm.length > existingTerm.length) ? searchTerm.length : existingTerm.length + 1);
-        
+        let rowAbv, rowBel = [];
+        let left, right = "";
+        //Find longest term -- Set longest term for algorithm
+        if (searchTerm < existingTerm) {
+            rowAbv = new Array(existingTerm.length + 1);
+            rowBel = new Array(existingTerm.length + 1);
+            left = searchTerm;
+            right = existingTerm;
+        } else {
+            rowAbv = new Array(searchTerm.length + 1);
+            rowBel = new Array(searchTerm.length + 1);
+            left = existingTerm;
+            right = searchTerm;
+        }
+        //Perform Levenschtein Algorithm
         for (let i = 0; i < rowAbv.length; i++) {
             rowAbv[i] = i;
         }
-        for (let i = 0; i < searchTerm.length; i++) {
+        for (let i = 0; i < left.length; i++) {
             rowBel[0] = i + 1;
-
-            for (let j = 0; j < existingTerm.length; j++) {
-                //Min of (deletion, insertion, substitution) costs.
-                rowBel[j+1] = Math.min(rowAbv[j+1] + 1, rowBel[j] + 1, ((searchTerm[i] == existingTerm[j]) ? rowAbv[j] : rowAbv[j] + 1));
+            for (let j = 0; j < right.length; j++) {
+                rowBel[j+1] = Math.min(rowAbv[j+1] + 1, rowBel[j] + 1, ((left[i] === right[j]) ? rowAbv[j] : rowAbv[j] + 1));
             }
             for (let j = 0; j < rowAbv.length; j++) {
                 rowAbv[j] = rowBel[j];
             }
         }
+        //Return Levenschtein distance
         return rowAbv[rowAbv.length - 1];
     }
 
@@ -81,13 +90,13 @@ class LevenschteinSearch {
     }
 
     //Takes a levenschtein array & item name, inserts into appropriate index of sorted items.
-    //TODO: Have a double array of levenschtein distances for better ordering?
+    //TODO: Have a double array of levenschtein distances for better ordering!
     insertItem = (itemOrder, itemName, orderedItems) => {
         for (let i = 0; i < orderedItems.length; i++) {
             const element = orderedItems[i][0];
             let j = itemOrder.length > element.length ? element.length : itemOrder.length;
             let flag = false;
-            for (let k = 0; flag == false && k < j; k++) {
+            for (let k = 0; flag === false && k < j; k++) {
                 if (itemOrder[k] < element[k] || typeof element[k] === 'undefined') {
                     flag = true;
                     orderedItems.splice(i,0,[itemOrder, itemName]);
