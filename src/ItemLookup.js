@@ -3,7 +3,6 @@ import SearchBox from './SearchBox';
 import Item from './Item';
 import './App.css';
 import { arrayExpression } from '@babel/types';
-import LevenschteinSearch from './LevenschteinSearch';
 
 class ItemLookup extends Component {
     constructor(props) {
@@ -16,7 +15,6 @@ class ItemLookup extends Component {
 
     handleItemChange = (componentName, itemName) => {
         this.setState({ currentItemSearch: itemName });
-        new LevenschteinSearch().getCloseNames(itemName);
     }
 
     render() {

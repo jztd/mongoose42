@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RuneApi from './RunescapeApi';
 import './App.css';
+import LevenschteinSearch from './LevenschteinSearch';
+
 
 
 class SearchBox extends Component {
@@ -35,6 +37,7 @@ class SearchBox extends Component {
         const { id } = this.props;
         const value = event.target.value;
         this.setState({ value: value });
+        LevenschteinSearch.getCloseNames(value);
         return this.props.parentFunction(id, value);
     }
 

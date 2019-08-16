@@ -25,7 +25,8 @@ class RuneApi {
             "Runeite Pickaxe",
             "Party Hat",
             "Santa Hat",
-            "H'oWeen Mask"
+            "H'oWeen Mask",
+            "Excalibur"
         ];
     }
 
@@ -39,7 +40,7 @@ class RuneApi {
         }
 
         return new Promise((resolve, reject) => {
-            console.log(ItemSearchTerm);
+            //console.log(ItemSearchTerm);
             const firstLetter = ItemSearchTerm[0];
             let cats = Object.keys(RuneApi.categories);
             let promises = [];
