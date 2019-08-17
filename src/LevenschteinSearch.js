@@ -47,12 +47,12 @@ class LevenschteinSearch {
     //      a priority order such that if the best levenschtein distance is the result
     //      of word length without a match, that result loses priority.
     static getCloseNames = (searchTerm) => {
-        //const splitSearchTerm = searchTerm.split(" ");
-        let closeItems = [];/* [[new Array(splitSearchTerm.length), "a"],
+        const splitSearchTerm = searchTerm.split(" ");
+        let closeItems = [[new Array(splitSearchTerm.length), "a"],
                           [new Array(splitSearchTerm.length), "b"],
                           [new Array(splitSearchTerm.length), "c"],
                           [new Array(splitSearchTerm.length), "d"],
-                          [new Array(splitSearchTerm.length), "e"]];*/
+                          [new Array(splitSearchTerm.length), "e"]];
                           
         const itemNames = this.api.getItemNames();
 
@@ -62,7 +62,7 @@ class LevenschteinSearch {
         }
 
         //Iterate through each item name and sort into return array
-        /*itemNames.forEach(element => {
+        itemNames.forEach(element => {
             const splitString = element.split(" ");
             const distArr = [];
             splitSearchTerm.forEach(term => {
@@ -75,23 +75,6 @@ class LevenschteinSearch {
             this.insertItem([this.bubbleSort2(distArr), element], closeItems);
             // console.log("--------------------------------------------");
             // closeItems.forEach(item => console.log(item));
-        });*/
-
-        itemNames.forEach(element => {
-            let temp = this.levenshteinDistance(element.toLowerCase(),searchTerm.toLowerCase());
-            if (typeof closeItems[0] === 'undefined') {
-                closeItems.push([temp,element]);
-            } else {
-                let len = closeItems.length;
-                for (let i = 0; i < len; i++) {
-                    if (closeItems[i][0] > temp) {
-                        closeItems.splice(i,0,[temp,element]);
-                        if (len >5) {
-                            closeItems.pop();
-                        }
-                    }
-                }
-            }
         });
 
         //Return list of search suggestions
