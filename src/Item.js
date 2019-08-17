@@ -4,7 +4,7 @@ import RuneApi from './RunescapeApi';
 import './App.css';
 
 class Item extends Component {
-    r = new RuneApi();
+    // r = new RuneApi();
     static propTypes = {
         itemName: PropTypes.string
     };
@@ -22,9 +22,9 @@ class Item extends Component {
 
     componentDidUpdate (prevProps) {
         if (prevProps.itemName !== this.props.itemName) {
-            this.r.getItem(this.props.itemName).then((result) => {
-                this.setState({ results: result });
-            });
+            // this.r.getItem(this.props.itemName).then((result) => {
+            //     this.setState({ results: result });
+            // });
         }
     }
 
