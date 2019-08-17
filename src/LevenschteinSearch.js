@@ -47,11 +47,8 @@ class LevenschteinSearch {
     //      of word length without a match, that result loses priority.
     static getCloseNames = (searchTerm) => {
         const splitSearchTerm = searchTerm.split(" ");
-        let closeItems = [[new Array(splitSearchTerm.length), "a"],
-                          [new Array(splitSearchTerm.length), "b"],
-                          [new Array(splitSearchTerm.length), "c"],
-                          [new Array(splitSearchTerm.length), "d"],
-                          [new Array(splitSearchTerm.length), "e"]];
+        let closeItems = [];
+        console.log(typeof closeItems[0]);
         const itemNames = this.api.getItemNames();
 
         //Return empty array for empty search terms
@@ -120,46 +117,58 @@ class LevenschteinSearch {
 
 
     static insertItem = (newItem, orderedItems) => {
+
         //Grab the distance array of the new item
         let newOrderArray = newItem[0];
+
         //Create a flag that indicates the new item is a better match
         //than the old item being compared in the list of ordered items
         let flag = false;
-        //Iterate through all current ordered items
-        for (let i = 0; i < orderedItems.length; i++) {
+        let length = orderedItems.length < 5;
+
+        //Iterate through all current ordered items of max length 5
+        for (let i = 0; i < 5; i++) {
+
+            //Check for an uninitialized index location in ordered items
+            if (typeof orderedItems[i] === 'undefined') {
+                orderedItems.push(newItem);
+                break;
+            }
+
             //Grab the distance array of the i^th ordered item
             const oldOrderArray = orderedItems[i][0];
-            //Check for non-initialized old order array and set flag to true
-            if (typeof oldOrderArray[0] === 'undefined') {
-                flag = true;
-            } else {
-                //NOTE: Both arrays have the same first level array lengths (splitSearchTerm.length)
-                //Iterate over the first level arrays and compare them in order
-                //k is the index of the first level arrays to compare
-                for (let k = 0; flag === false && k < newOrderArray.length; k++) {
-                    let flag2 = false;                    
-                    let shortestLen2 = newOrderArray[k].length < oldOrderArray[k].length ? newOrderArray[k].length : oldOrderArray[k].length;
-                    for (let m = 0; flag === false && m < shortestLen2; m++) {
-                        //Flag if new item is a better match than ordered item
-                        if (newOrderArray[k][m] < oldOrderArray[k][m]) {
-                            flag = true;
-                        } else if (newOrderArray[k][m] > oldOrderArray[k][m]) {
-                            flag2 = true;
-                            break;
-                        }
-                    }
-                    if (flag2) {
+
+            //NOTE: Both arrays have the same first level array lengths (splitSearchTerm.length)
+            //Iterate over the first level arrays and compare them in order
+            //k is the index of the first level arrays to compare
+            for (let k = 0; flag === false && k < newOrderArray.length; k++) {
+                let flag2 = false;                    
+                let shortestLen2 = newOrderArray[k].length < oldOrderArray[k].length ? newOrderArray[k].length : oldOrderArray[k].length;
+                for (let m = 0; flag === false && m < shortestLen2; m++) {
+
+                    //Flag if new item is a better match than ordered item
+                    if (newOrderArray[k][m] < oldOrderArray[k][m]) {
+                        flag = true;
+                    } else if (newOrderArray[k][m] > oldOrderArray[k][m]) {
+                        flag2 = true;
                         break;
                     }
                 }
+                if (flag2) {
+                    break;
+                }
             }
+
             //Splice new item and remove last item from list
             if (flag) {
                 orderedItems.splice(i,0,newItem);
-                orderedItems.pop();
+                if (!length) {
+                    orderedItems.pop();
+                }
                 break;
             }
         }
+
         //Don't really need to return this because we've been working on a reference...
         return orderedItems;
     }
