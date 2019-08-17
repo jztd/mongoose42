@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import RuneApi from './RunescapeApi';
 import './App.css';
 import LevenschteinSearch from './LevenschteinSearch';
 
 
 
 class SearchBox extends Component {
-    api = new RuneApi();
     static propTypes = {
         id: PropTypes.string.isRequired,
         focussed: PropTypes.bool,
@@ -37,7 +35,7 @@ class SearchBox extends Component {
         const { id } = this.props;
         const value = event.target.value;
         this.setState({ value: value });
-        LevenschteinSearch.getCloseNames(value);
+        LevenschteinSearch.getCloseNames(value).forEach(item => console.log(item));
         return this.props.parentFunction(id, value);
     }
 

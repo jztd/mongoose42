@@ -1,4 +1,5 @@
 import RuneApi from './RunescapeApi';
+import { promised } from 'q';
 
 class LevenschteinSearch {
     static api = new RuneApi();
@@ -52,6 +53,7 @@ class LevenschteinSearch {
                           [new Array(splitSearchTerm.length), "c"],
                           [new Array(splitSearchTerm.length), "d"],
                           [new Array(splitSearchTerm.length), "e"]];
+                          
         const itemNames = this.api.getItemNames();
 
         //Return empty array for empty search terms
@@ -71,8 +73,8 @@ class LevenschteinSearch {
                 distArr.push(this.bubbleSort(distArr2));
             });
             this.insertItem([this.bubbleSort2(distArr), element], closeItems);
-            console.log("--------------------------------------------");
-            closeItems.forEach(item => console.log(item));
+            // console.log("--------------------------------------------");
+            // closeItems.forEach(item => console.log(item));
         });
 
         //Return list of search suggestions
