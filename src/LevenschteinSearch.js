@@ -46,16 +46,29 @@ class LevenschteinSearch {
     //      words the best, even without a precise letter match. Should implement
     //      a priority order such that if the best levenschtein distance is the result
     //      of word length without a match, that result loses priority.
-    static getCloseNames = (searchTerm) => {
+    static getCloseNames = (searchTerm, priorSpaces, priorMatches) => {
+        const currSpaces = searchTerm.split(" ").length -1;
+        if (!priorSpaces && searchTerm.indexOf(' ') === -1) {
+            return [new Array(1), 0];
+        } else if (priorSpaces === currSpaces) {
+            return [priorMatches, priorSpaces];
+        }
+        
+        //Return prior array match terms if the search term isn't divisible by 3
+  /*       console.log("The search term length modded by 3 is:\t" + searchTerm.length%3);
+        if (searchTerm.length%3 !== 0) {
+            return priorMatches;
+        } */
+
         const splitSearchTerm = searchTerm.split(" ");
         let closeItems = [];
         //Remove all itemnames with '+' or '(' in the name
         const itemNames = this.api.getItemNames().filter(name => (name.indexOf('+') === -1 && (name.indexOf('(') === -1)));
         
         //Return empty array for empty search terms
-        if (searchTerm === "") {
+        /* if (searchTerm === "") {
             return [];
-        }
+        } */
 
         //Iterate through each item name and sort into return array
         itemNames.forEach(element => {
@@ -83,7 +96,7 @@ class LevenschteinSearch {
         });
 
         //Return list of search suggestions
-        return closeItems;
+        return [closeItems, currSpaces];
     }
 
     //It's a bubble sort! No....really, it works this time. I swear...
