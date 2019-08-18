@@ -49,9 +49,9 @@ class LevenschteinSearch {
     static getCloseNames = (searchTerm) => {
         const splitSearchTerm = searchTerm.split(" ");
         let closeItems = [];
-        console.log(typeof closeItems[0]);
-        const itemNames = this.api.getItemNames();
-
+        //Remove all itemnames with '+' or '(' in the name
+        const itemNames = this.api.getItemNames().filter(name => (name.indexOf('+') === -1 && (name.indexOf('(') === -1)));
+        
         //Return empty array for empty search terms
         if (searchTerm === "") {
             return [];
@@ -61,13 +61,22 @@ class LevenschteinSearch {
         itemNames.forEach(element => {
             const splitString = element.split(" ");
             const distArr = [];
-            splitSearchTerm.forEach(term => {
+            for (let j = 0; j < splitSearchTerm.length; j++) {
+                let distArr2 = [];
+                for (let i = 0; i < splitString.length; i++) {
+                    //Had to add 1 to make the lowest distance score a 1 -- Makes the
+                    //word index weighting algorithm more robust
+                    distArr2.push((this.levenshteinDistance(splitSearchTerm[j].toLowerCase(),splitString[i].toLowerCase()) + 1) * (Math.abs(i-j)+1));
+                }
+                distArr.push(this.bubbleSort(distArr2));
+            }
+            /*splitSearchTerm.forEach(term => {
                 let distArr2 = [];
                 for (let i = 0; i < splitString.length; i++) {
                     distArr2.push(this.levenshteinDistance(term.toLowerCase(),splitString[i].toLowerCase()));
                 }
                 distArr.push(this.bubbleSort(distArr2));
-            });
+            });*/
             this.insertItem([this.bubbleSort2(distArr), element], closeItems);
             // console.log("--------------------------------------------");
             // closeItems.forEach(item => console.log(item));
@@ -140,6 +149,27 @@ class LevenschteinSearch {
             const oldOrderArray = orderedItems[i][0];
 
             //NOTE: Both arrays have the same first level array lengths (splitSearchTerm.length)
+            //In order to iterate over the best matches first, we must compare the first index
+            //of the second level arrays then the second index's and so forth.
+            //Grab the shortest second level array length so we don't compare past existing indices
+            let shortestLen = newOrderArray[0].length < oldOrderArray[0].length ? newOrderArray[0].length : oldOrderArray[0].length;
+            for (let k = 0; flag === false && k < shortestLen; k++) {
+                let flag2 = false;
+                //Now check each first level array against each other at index k
+                for (let m = 0; flag === false && m < newOrderArray.length; m++) {
+                    if (newOrderArray[m][k] < oldOrderArray[m][k]) {
+                        flag = true;
+                    } else if (newOrderArray[m][k] > oldOrderArray[m][k]) {
+                        flag2 = true;
+                        break;
+                    }
+                }
+                if (flag2) {
+                    break;
+                }
+            }
+            /*
+            //NOTE: Both arrays have the same first level array lengths (splitSearchTerm.length)
             //Iterate over the first level arrays and compare them in order
             //k is the index of the first level arrays to compare
             for (let k = 0; flag === false && k < newOrderArray.length; k++) {
@@ -158,7 +188,7 @@ class LevenschteinSearch {
                 if (flag2) {
                     break;
                 }
-            }
+            }*/
 
             //Splice new item and remove last item from list
             if (flag) {
