@@ -28,19 +28,24 @@ class SearchBox extends Component {
             focussed: false,
             value: props.value || '',
             label: props.label || '',
+            matches: new Array(1),
+            priorSpaces: 0,
         };
     }
 
     onChange = (event) => {
         const { id } = this.props;
         const value = event.target.value;
-        this.setState({ value: value });
-        LevenschteinSearch.getCloseNames(value).forEach(item => console.log(item));
+        const [matchArr, space] = LevenschteinSearch.getCloseNames(value, this.state.priorSpaces, this.state.matches);
+        this.setState({ value: value, matches: matchArr, priorSpaces: space });
+        
+       // this.state.matches.forEach(item => console.log(item));
         return this.props.parentFunction(id, value);
     }
 
     render() {
-        const { focussed, value, label } = this.state;
+        const { focussed, value, label, matches } = this.state;
+        Object.keys(matches).forEach(key => console.log(matches[key]));
         const { id } = this.props;
         const searchClassName = `searchBoxContainer ${(focussed ? 'focussed' : '')}`
         return (
