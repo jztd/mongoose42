@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
+import RuneApi from './RunescapeApi';
 
 class Item extends Component {
+    api = new RuneApi();
+
     static propTypes = {
         itemName: PropTypes.string
     };
@@ -13,24 +16,32 @@ class Item extends Component {
 
     constructor(props) {
         super(props);
-
-        this.state = { results: "" };
+        this.state = { item: "" };
     }
 
 
     componentDidUpdate (prevProps) {
         if (prevProps.itemName !== this.props.itemName) {
-
+            this.api.getItemInfo(this.props.itemName).then(response => {
+                console.log("got response " + response);
+                this.setState({item : response});
+            });
         }
     }
 
     render() {
-        const itemName = this.state.results;
-        return (
-            <div>
-                {itemName}
-            </div>
-        );
+        const item = this.state.item;
+        console.log(item);
+        if(item){
+            return (
+                <div>
+                    <p>{item.name}</p>
+                    <p>{item.description}</p>
+                    <img src={item.icon} alt={item.name} />
+                </div>
+            );
+        }
+        return "";
     }
 }
 
