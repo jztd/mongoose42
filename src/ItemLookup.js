@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import SearchBox from './SearchBox';
 import Item from './Item';
 import './App.css';
-import { arrayExpression } from '@babel/types';
 
 class ItemLookup extends Component {
     constructor(props) {

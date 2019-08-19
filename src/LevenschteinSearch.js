@@ -1,5 +1,4 @@
 import RuneApi from './RunescapeApi';
-import { promised } from 'q';
 
 class LevenschteinSearch {
     static api = new RuneApi();

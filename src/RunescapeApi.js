@@ -4,7 +4,6 @@ class RuneApi {
     currentItems = [];
     constructor() {
         fetch("/allNames").then((response) => response.json()).then((jsonResult) => {
-            console.log("Setting current Items");
             this.currentItems = jsonResult;
         });
     }
@@ -12,7 +11,6 @@ class RuneApi {
     getItemNames = () => {
         return this.currentItems;
     }
-
 }
 
 export default RuneApi;
