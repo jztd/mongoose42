@@ -2,22 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
 import LevenschteinSearch from './LevenschteinSearch';
+import Autosuggest from 'react-autosuggest';
 
 
 
 class SearchBox extends Component {
     static propTypes = {
-        id: PropTypes.string.isRequired,
-        focussed: PropTypes.bool,
         value: PropTypes.string,
-        label: PropTypes.string,
         parentFunction: PropTypes.func
     };
 
     static defaultProps = {
-        focussed: false,
         value: '',
-        label: '',
         parentFunction: () => { return '' }
     };
 
@@ -25,45 +21,46 @@ class SearchBox extends Component {
         super(props);
         
         this.state = {
-            focussed: false,
             value: props.value || '',
-            label: props.label || '',
-            matches: new Array(1),
-            priorSpaces: 0,
+            suggestions: []
         };
     }
+    getSuggestionValue = (suggestion) => suggestion;
+    renderSuggestion = (suggestion) => {
+        return (<div style={{color:"white"}}>{suggestion}</div>);
+    }
+    getSuggestions = (value) => {
+        let suggestions = LevenschteinSearch.getCloseNames(value);
+        return suggestions.names;
+    }
+    onSuggestionsFetchRequested = ({ value }) => {
+        this.setState({ suggestions: this.getSuggestions(value) });
+    }
+    onSuggestionsClearRequested = () => {
+        this.setState({ suggestions: [] });
+    }
 
-    onChange = (event) => {
-        const { id } = this.props;
-        const value = event.target.value;
-        const [matchArr, space] = LevenschteinSearch.getCloseNames(value, this.state.priorSpaces, this.state.matches);
-        this.setState({ value: value, matches: matchArr, priorSpaces: space });
-        
-       // this.state.matches.forEach(item => console.log(item));
-        return this.props.parentFunction(id, value);
+    onChange = (event, { newValue }) => {
+        this.setState({ value: newValue });
     }
 
     render() {
-        const { focussed, value, label, matches } = this.state;
-        Object.keys(matches).forEach(key => console.log(matches[key]));
-        const { id } = this.props;
-        const searchClassName = `searchBoxContainer ${(focussed ? 'focussed' : '')}`
+        const { value, suggestions } = this.state;
+        let inputProps = {
+            placeholder: 'Type an Item Name',
+            value,
+            onChange: this.onChange
+        }
         return (
-            <div className={searchClassName} >
-                <input
-                    id={id}
-                    type="text"
-                    value={value}
-                    placeholder={label}
-                    onChange={this.onChange}
-                    onFocus={() => this.setState({ focussed: true })}
-                    onBlur={() => this.setState({focussed: false})}
-                />
+            <Autosuggest
+                suggestions={suggestions}
+                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                getSuggestionValue={this.getSuggestionValue}
+                renderSuggestion={this.renderSuggestion}
+                inputProps={inputProps}
+            />
 
-                <label htmlFor={id} >
-                    {label}
-                </label>
-            </div>
         );
     }
 }
