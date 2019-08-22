@@ -12,7 +12,7 @@ class ItemLookup extends Component {
         };
     }
 
-    handleItemChange = (componentName, itemName) => {
+    handleItemChange = (itemName) => {
         this.setState({ currentItemSearch: itemName });
     }
 

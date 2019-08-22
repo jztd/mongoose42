@@ -15,6 +15,7 @@ class RuneApi {
     }
 
     getItemInfo = (itemName) => {
+        console.log('getting item ' + itemName);
         return new Promise((resolve, reject) => {
             console.log("sending: " + itemName);
             fetch("/item?name="+itemName).then(response => response.json()).then(json => {

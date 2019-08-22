@@ -25,17 +25,26 @@ class SearchBox extends Component {
             suggestions: []
         };
     }
-    getSuggestionValue = (suggestion) => suggestion;
+
+    getSuggestionValue = (suggestion) => suggestion.name;
+
     renderSuggestion = (suggestion) => {
-        return (<div style={{color:"white"}}>{suggestion}</div>);
+        return (<span>{suggestion.name}</span>);
     }
+
     getSuggestions = (value) => {
         let suggestions = LevenschteinSearch.getCloseNames(value);
-        return suggestions.names;
+
+        return suggestions.names.reduce((acc, name) => {
+            acc.push({highlighted: false, name});
+            return acc;
+        }, []);
     }
+
     onSuggestionsFetchRequested = ({ value }) => {
         this.setState({ suggestions: this.getSuggestions(value) });
     }
+
     onSuggestionsClearRequested = () => {
         this.setState({ suggestions: [] });
     }
@@ -43,7 +52,13 @@ class SearchBox extends Component {
     onChange = (event, { newValue }) => {
         this.setState({ value: newValue });
     }
-
+    onSuggestionSelected = (event, {suggestion, suggestionValue}) => {
+        console.log("got selection " + suggestionValue);
+        this.props.parentFunction(suggestionValue);
+    }
+    onSuggestionHighlighted = ({suggestion}) => {
+        suggestion.highlighted = true;
+    }
     render() {
         const { value, suggestions } = this.state;
         let inputProps = {
@@ -52,14 +67,18 @@ class SearchBox extends Component {
             onChange: this.onChange
         }
         return (
-            <Autosuggest
-                suggestions={suggestions}
-                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                getSuggestionValue={this.getSuggestionValue}
-                renderSuggestion={this.renderSuggestion}
-                inputProps={inputProps}
-            />
+            <div class="searchContainer">
+                <Autosuggest
+                    suggestions={suggestions}
+                    onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                    getSuggestionValue={this.getSuggestionValue}
+                    renderSuggestion={this.renderSuggestion}
+                    onSuggestionSelected={this.onSuggestionSelected}
+                    inputProps={inputProps}
+                />
+            </div>
+
 
         );
     }
