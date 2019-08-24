@@ -10,6 +10,21 @@ class RuneApi {
         });
     }
 
+    getItemGraph = (itemId) => {
+        //console.log("Getting graph for " + itemId + "...");
+        return new Promise((resolve, reject) => {
+            //console.log("Sending request...");
+            fetch("/price?id=" + itemId).then(response => response.json()).then(json => {
+                //console.log("resolving " + json);
+                resolve(json);
+            });
+
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
+
     getItemNames = () => {
         return RuneApi.currentItems;
     }
