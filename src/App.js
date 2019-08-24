@@ -1,12 +1,16 @@
 import React from 'react';
+import {BrowserRouter, Route} from 'react-router-dom';
 import ItemLookup from './ItemLookup';
-import './App.css';
+import ItemPage from './ItemPage';
 
 function Container() {
     return (
-        <div className="container">
-            <ItemLookup />
-        </div>
+        <BrowserRouter>
+            <div className="container-flex">
+                <Route exact path="/" component={ItemLookup} />
+                <Route exact path="/item" component={ItemPage} />
+            </div>
+        </BrowserRouter>
     );
 }
 

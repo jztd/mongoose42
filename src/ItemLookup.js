@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import SearchBox from './SearchBox';
-import Item from './Item';
 import './App.css';
 
 class ItemLookup extends Component {
@@ -18,9 +17,8 @@ class ItemLookup extends Component {
 
     render() {
         return (
-            <div>
+            <div class="h-100 row align-items-center">
                 <SearchBox id="searchBox" label="Item Name" parentFunction={this.handleItemChange}/>
-                <Item itemName={this.state.currentItemSearch} />
             </div>
         );
     }
