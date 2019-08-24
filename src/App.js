@@ -8,7 +8,7 @@ function Container() {
         <BrowserRouter>
             <div className="container-flex">
                 <Route exact path="/" component={ItemLookup} />
-                <Route exact path="/item" component={ItemPage} />
+                <Route exact path="/item/:name" component={ItemPage} />
             </div>
         </BrowserRouter>
     );

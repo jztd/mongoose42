@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
 import './App.css';
 import LevenschteinSearch from './LevenschteinSearch';
 import Autosuggest from 'react-autosuggest';
@@ -19,10 +20,11 @@ class SearchBox extends Component {
 
     constructor(props) {
         super(props);
-        
+        console.log(this.props);
         this.state = {
             value: props.value || '',
-            suggestions: []
+            suggestions: [],
+            redirect: false
         };
     }
 
@@ -53,8 +55,7 @@ class SearchBox extends Component {
         this.setState({ value: newValue });
     }
     onSuggestionSelected = (event, {suggestion, suggestionValue}) => {
-        console.log("got selection " + suggestionValue);
-        this.props.parentFunction(suggestionValue);
+        this.setState({redirect:true});
     }
     onSuggestionHighlighted = ({suggestion}) => {
         suggestion.highlighted = true;
@@ -66,6 +67,10 @@ class SearchBox extends Component {
             value,
             onChange: this.onChange
         }
+        if (this.state.redirect === true) {
+            return (<Redirect to={`item/${this.state.value}`} push={true} />);
+        }
+
         return (
             <div class="searchContainer">
                 <Autosuggest

@@ -17,32 +17,33 @@ class Item extends Component {
 
     constructor(props) {
         super(props);
+        console.log("in item component" + this.props.itemName);
         this.state = { item: "", priceData: [] };
     }
 
 
-    componentDidUpdate (prevProps) {
-        if (prevProps.itemName !== this.props.itemName) {
-            this.api.getItemInfo(this.props.itemName).then(response => {
-                console.log("got response " + response);
-                this.setState({item : response});
-                console.log(`Grabbing price information for ${this.state.item.name} (id #${this.state.item.id})`);
-                this.api.getItemGraph(this.state.item.id).then(returnable => {
-                    if (!returnable[0]) {
-                        console.log("No pricing data was returned...");
-                        return;
-                    }
-                    console.log(`Got graphical data for ${this.state.item.name}!`);
-                    let formatData = [];
-                    returnable.forEach(element => {
-                        let time = new Date(element.date);
-                        let price = element.daily/1000;
-                        formatData.push({x: time, y: price});
-                    });
-                    this.setState({priceData: formatData});
+    componentDidMount () {
+       
+        this.api.getItemInfo(this.props.itemName).then(response => {
+            console.log("got response " + response);
+            this.setState({item : response});
+            console.log(`Grabbing price information for ${this.state.item.name} (id #${this.state.item.id})`);
+            this.api.getItemGraph(this.state.item.id).then(returnable => {
+                if (!returnable[0]) {
+                    console.log("No pricing data was returned...");
+                    return;
+                }
+                console.log(`Got graphical data for ${this.state.item.name}!`);
+                let formatData = [];
+                returnable.forEach(element => {
+                    let time = new Date(element.date);
+                    let price = element.daily/1000;
+                    formatData.push({x: time, y: price});
                 });
+                this.setState({priceData: formatData});
             });
-        }
+        });
+        
     }
 
     render() {
