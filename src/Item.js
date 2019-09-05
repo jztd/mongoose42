@@ -53,8 +53,6 @@ class Item extends Component {
         if(item){
             if (this.state.priceData[0]) {
                 let datum = this.state.priceData;
-                console.log(datum.x);
-                console.log(datum.y);
                 var dataFormatted = {
                     labels: datum.reduce((acc, element) => {
                         acc.push(element.x);
@@ -71,22 +69,22 @@ class Item extends Component {
                             acc.push(element.y);
                             return acc;
                         },[])
-                    }],
-                    options: {
-                        scales: {
-                            xAxes: [{
-                                type: 'time',
-                                time: {
-                                    parser: 'MM/DD/YY HH:mm',
-                                    tooltipFormat: 'll HH:mm',
-                                    unit: 'month',
-                                    unitStepSize: 1,
-                                    displayFormats: {
-                                        month: 'MMM YYYY'
-                                    }
+                    }]
+                };
+
+                var options =  {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                tooltipFormat: 'MMM Do',
+                                unit: 'month',
+                                unitStepSize: 1,
+                                displayFormats: {
+                                    month: 'MMM YYYY'
                                 }
-                            }]
-                        }
+                            }
+                        }]
                     }
                 };
                 return (
@@ -96,8 +94,7 @@ class Item extends Component {
                             <p>{item.description}</p>
                             <img src={item.icon} alt={item.name} />
                         </div>
-                        <Line data={dataFormatted}/>
-                        <canvas id='mychart-0' width='400' height='400'></canvas>
+                        <Line data={dataFormatted} options={options}/>
                     </div>
                 );
             } else {
