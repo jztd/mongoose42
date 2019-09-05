@@ -47,46 +47,51 @@ class Item extends Component {
         
     }
 
+    getArrayFromPrice = (data, axis) => {
+        return data.reduce((acc,element) => {
+            acc.push(element[axis]);
+            return acc;
+        },[]);
+    }
+
+    formatData = () => {
+        let priceData = this.state.priceData;
+        return {
+            labels: this.getArrayFromPrice(priceData, 'x'),
+            datasets: [{
+                label: 'Daily Price',
+                backgroundColor: 'rgba(255,99,132,0.2)',
+                borderColor: 'rgba(255,99,132,1)',
+                borderWidth: 1,
+                hoverBackgroundColor: 'rgba(255,99,132,0.4)',
+                hoverBorderColor: 'rgba(255,99,132,1)',
+                data: this.getArrayFromPrice(priceData,'y')
+            }]
+        }
+    }
+
+    createOptions = () => {
+        return {
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    time: {
+                        tooltipFormat: 'MMM Do',
+                        unit: 'month',
+                        unitStepSize: 1,
+                        displayFormats: {
+                            month: 'MMM YYYY'
+                        }
+                    }
+                }]
+            }
+        }
+    }
+
     render() {
         const item = this.state.item;
-        console.log(item, this.state.priceData);
         if(item){
             if (this.state.priceData[0]) {
-                let datum = this.state.priceData;
-                var dataFormatted = {
-                    labels: datum.reduce((acc, element) => {
-                        acc.push(element.x);
-                        return acc;
-                    },[]),
-                    datasets: [{
-                        label: 'Daily Price',
-                        backgroundColor: 'rgba(255,99,132,0.2)',
-                        borderColor: 'rgba(255,99,132,1)',
-                        borderWidth: 1,
-                        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-                        hoverBorderColor: 'rgba(255,99,132,1)',
-                        data: datum.reduce((acc, element) => {
-                            acc.push(element.y);
-                            return acc;
-                        },[])
-                    }]
-                };
-
-                var options =  {
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                tooltipFormat: 'MMM Do',
-                                unit: 'month',
-                                unitStepSize: 1,
-                                displayFormats: {
-                                    month: 'MMM YYYY'
-                                }
-                            }
-                        }]
-                    }
-                };
                 return (
                     <div>
                         <div>
@@ -94,7 +99,7 @@ class Item extends Component {
                             <p>{item.description}</p>
                             <img src={item.icon} alt={item.name} />
                         </div>
-                        <Line data={dataFormatted} options={options}/>
+                        <Line data={this.formatData()} options={this.createOptions()}/>
                     </div>
                 );
             } else {
