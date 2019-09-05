@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
-import {VictoryChart, VictoryLine} from 'victory';
-
+import Chart from 'chart.js';
 class Graph extends Component {
     render() {
         return (
-            <VictoryChart >
-                <VictoryLine />
-            </VictoryChart >
+            //Insert Chart Stuff Here
             );
     }
 }

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
 import RuneApi from './RunescapeApi';
-import {VictoryChart, VictoryLine} from 'victory';
+import { Line } from 'react-chartjs-2';
+import { access } from 'fs';
 
 class Item extends Component {
     api = new RuneApi();
@@ -37,7 +38,7 @@ class Item extends Component {
                 let formatData = [];
                 returnable.forEach(element => {
                     let time = new Date(element.date);
-                    let price = element.daily/1000;
+                    let price = element.daily;
                     formatData.push({x: time, y: price});
                 });
                 this.setState({priceData: formatData});
@@ -51,6 +52,43 @@ class Item extends Component {
         console.log(item, this.state.priceData);
         if(item){
             if (this.state.priceData[0]) {
+                let datum = this.state.priceData;
+                console.log(datum.x);
+                console.log(datum.y);
+                var dataFormatted = {
+                    labels: datum.reduce((acc, element) => {
+                        acc.push(element.x);
+                        return acc;
+                    },[]),
+                    datasets: [{
+                        label: 'Daily Price',
+                        backgroundColor: 'rgba(255,99,132,0.2)',
+                        borderColor: 'rgba(255,99,132,1)',
+                        borderWidth: 1,
+                        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
+                        hoverBorderColor: 'rgba(255,99,132,1)',
+                        data: datum.reduce((acc, element) => {
+                            acc.push(element.y);
+                            return acc;
+                        },[])
+                    }],
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                type: 'time',
+                                time: {
+                                    parser: 'MM/DD/YY HH:mm',
+                                    tooltipFormat: 'll HH:mm',
+                                    unit: 'month',
+                                    unitStepSize: 1,
+                                    displayFormats: {
+                                        month: 'MMM YYYY'
+                                    }
+                                }
+                            }]
+                        }
+                    }
+                };
                 return (
                     <div>
                         <div>
@@ -58,11 +96,8 @@ class Item extends Component {
                             <p>{item.description}</p>
                             <img src={item.icon} alt={item.name} />
                         </div>
-                        <VictoryChart >
-                            <VictoryLine 
-                                data = {this.state.priceData}
-                            />
-                        </VictoryChart > 
+                        <Line data={dataFormatted}/>
+                        <canvas id='mychart-0' width='400' height='400'></canvas>
                     </div>
                 );
             } else {
