@@ -20,6 +20,7 @@ class Item extends Component {
         super(props);
         console.log("in item component" + this.props.itemName);
         this.state = { item: "", priceData: [] };
+        this.postFix = '';
     }
 
 
@@ -54,26 +55,52 @@ class Item extends Component {
         },[]);
     }
 
+    formatPriceArray = (arr) => {
+        //Determine the average price
+        let avg = arr.reduce((acc,element) => {
+            acc += element;
+            return acc;
+        });
+        avg /= arr.length;
+        let mapping = [1,''];
+        if (avg > 1000000000) {
+            mapping = [1000000000, 'B'];
+        } else if (avg > 1000000) {
+            mapping = [1000000, 'M'];
+        } else if (avg > 1000) {
+            mapping = [1000, 'k'];
+        }
+        this.postFix = mapping[1];
+        return arr.map(element => element/mapping[0]);
+    }
+
     formatData = () => {
         let priceData = this.state.priceData;
         return {
             labels: this.getArrayFromPrice(priceData, 'x'),
             datasets: [{
-                label: 'Daily Price',
-                backgroundColor: 'rgba(255,99,132,0.2)',
-                borderColor: 'rgba(255,99,132,1)',
+                //backgroundColor: 'rgba(255,99,132,0.2)',//This is the fill color from y = 0 to the data points
+                pointStyle: 'star',
+                borderColor: 'rgba(196,156,24,1)',//color of the border of the circles indicating datapoints
                 borderWidth: 1,
-                hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-                hoverBorderColor: 'rgba(255,99,132,1)',
-                data: this.getArrayFromPrice(priceData,'y')
+                hoverBackgroundColor: 'rgba(255,99,132,0.4)',//color of the background of the small circle
+                hoverBorderColor: 'rgba(255,99,132,1)',//color of the circle border when hovering
+                data: this.formatPriceArray(this.getArrayFromPrice(priceData,'y'))
             }]
         }
     }
 
-    createOptions = () => {
+    createOptions = (postFix) => {
         return {
+            legend: {
+                display: false
+            },
             scales: {
                 xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Date'
+                    },
                     type: 'time',
                     time: {
                         tooltipFormat: 'MMM Do',
@@ -81,6 +108,17 @@ class Item extends Component {
                         unitStepSize: 1,
                         displayFormats: {
                             month: 'MMM YYYY'
+                        }
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Price (gp)'
+                    },
+                    ticks: {
+                        callback: function(label,index,labels) {
+                            return `${label}${postFix}`;
                         }
                     }
                 }]
@@ -99,7 +137,7 @@ class Item extends Component {
                             <p>{item.description}</p>
                             <img src={item.icon} alt={item.name} />
                         </div>
-                        <Line data={this.formatData()} options={this.createOptions()}/>
+                        <Line data={this.formatData()} options={this.createOptions(this.postFix)}/>
                     </div>
                 );
             } else {
