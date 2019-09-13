@@ -4,6 +4,7 @@ import './App.css';
 import RuneApi from './RunescapeApi';
 import { Line } from 'react-chartjs-2';
 import { access } from 'fs';
+import { thisExpression } from '@babel/types';
 
 class Item extends Component {
     api = new RuneApi();
@@ -21,6 +22,7 @@ class Item extends Component {
         console.log("in item component" + this.props.itemName);
         this.state = { item: "", priceData: [] };
         this.postFix = '';
+        this.chartReference = {};
     }
 
 
@@ -62,16 +64,15 @@ class Item extends Component {
             return acc;
         });
         avg /= arr.length;
-        let mapping = [1,''];
+
         if (avg > 1000000000) {
-            mapping = [1000000000, 'B'];
+            this.postFix = 'B';
         } else if (avg > 1000000) {
-            mapping = [1000000, 'M'];
+            this.postFix = 'M';
         } else if (avg > 1000) {
-            mapping = [1000, 'k'];
+            this.postFix = 'k';
         }
-        this.postFix = mapping[1];
-        return arr.map(element => element/mapping[0]);
+        return arr;
     }
 
     formatData = () => {
@@ -79,12 +80,14 @@ class Item extends Component {
         return {
             labels: this.getArrayFromPrice(priceData, 'x'),
             datasets: [{
-                //backgroundColor: 'rgba(255,99,132,0.2)',//This is the fill color from y = 0 to the data points
-                pointStyle: 'star',
-                borderColor: 'rgba(196,156,24,1)',//color of the border of the circles indicating datapoints
-                borderWidth: 1,
-                hoverBackgroundColor: 'rgba(255,99,132,0.4)',//color of the background of the small circle
-                hoverBorderColor: 'rgba(255,99,132,1)',//color of the circle border when hovering
+                label: 'Price',
+                backgroundColor: 'transparent',//This is the fill color from y = 0 to the data points
+                pointBackgroundColor: '#ff7f0e',//The fill color of the point
+                pointHoverRadius: 3,//Radius of the point when hovered
+                //pointBorderColor: '#fff',//The stroke color of the point
+                //pointHoverBackgroundColor: '#fff',//The hover fill color of the point
+                //pointHoverBorderColor: 'rgba(220,220,220,1)',//The hover stroke color of the point
+                borderColor: '#ff7f0e',//color of the border of the circles indicating datapoints?
                 data: this.formatPriceArray(this.getArrayFromPrice(priceData,'y'))
             }]
         }
@@ -97,6 +100,9 @@ class Item extends Component {
             },
             scales: {
                 xAxes: [{
+                    gridLines: {
+                        drawBorder: false
+                    },
                     scaleLabel: {
                         display: true,
                         labelString: 'Date'
@@ -105,25 +111,60 @@ class Item extends Component {
                     time: {
                         tooltipFormat: 'MMM Do',
                         unit: 'month',
-                        unitStepSize: 1,
-                        displayFormats: {
-                            month: 'MMM YYYY'
-                        }
+                        unitStepSize: 1
                     }
                 }],
                 yAxes: [{
+                    gridLines: {
+                        drawBorder: false
+                    },
                     scaleLabel: {
                         display: true,
                         labelString: 'Price (gp)'
                     },
                     ticks: {
                         callback: function(label,index,labels) {
-                            return `${label}${postFix}`;
+                            if (postFix === 'B') {
+                                return `${label/1000000000}${postFix}`;
+                            } else if (postFix === 'M') {
+                                return `${label/1000000}${postFix}`;
+                            } else if (postFix === 'k') {
+                                return `${label/1000}${postFix}`;
+                            }
+                            return `${label}`;
                         }
                     }
                 }]
             }
         }
+    }
+
+    updateChart = (range) => {
+        let length = this.state.priceData.length;
+        let newPriceArray = [];
+        switch (range) {
+            case "Quarter":
+                newPriceArray = this.state.priceData.slice(length-1-91);
+                this.chartReference.chartInstance.options.scales.xAxes[0].time.unit = "month";
+                //console.log('New Price Array: ', newPriceArray);
+                break;
+            case "Month":
+                newPriceArray = this.state.priceData.slice(length-1-30);
+                this.chartReference.chartInstance.options.scales.xAxes[0].time.unit = "week";
+                break;
+            case "Week":
+                newPriceArray = this.state.priceData.slice(length-1-7);
+                this.chartReference.chartInstance.options.scales.xAxes[0].time.unit = "day";
+                break;
+            default:
+                newPriceArray = this.state.priceData;
+                this.chartReference.chartInstance.options.scales.xAxes[0].time.unit = "month";
+                break;
+        }
+        //console.log("The chart reference is: ", this.chartReference.chartInstance);
+        this.chartReference.chartInstance.config.data.datasets[0].data = this.formatPriceArray(this.getArrayFromPrice(newPriceArray, 'y'));
+        this.chartReference.chartInstance.config.data.labels = this.getArrayFromPrice(newPriceArray, 'x');
+        this.chartReference.chartInstance.update();
     }
 
     render() {
@@ -137,7 +178,16 @@ class Item extends Component {
                             <p>{item.description}</p>
                             <img src={item.icon} alt={item.name} />
                         </div>
-                        <Line data={this.formatData()} options={this.createOptions(this.postFix)}/>
+                        <div id={"graph"}>
+                            <button id="Year" type="button" onClick={() => this.updateChart("Year")}>Year</button>
+                            <button id="Quarter" type="button" onClick={() => this.updateChart("Quarter")}>Quarter</button>
+                            <button id="Month" type="button" onClick={() => this.updateChart("Month")}>Month</button>
+                            <button id="Week" type="button" onClick={() => this.updateChart("Week")}>Week</button>
+                            <button id="Day" type="button">Day</button>
+                            <div>
+                                <Line  ref={(reference) => this.chartReference = reference} data={this.formatData()} options={this.createOptions(this.postFix)}/>
+                            </div>
+                        </div>
                     </div>
                 );
             } else {
