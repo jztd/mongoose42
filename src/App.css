@@ -12,6 +12,18 @@ body, html, #root, .container-flex{
 #graph {
     background: #fff;
     height: 100%;
+    width: 100%;
+}
+
+.graph-nav {
+    background: #fff;
+    border-color: #adadad;
+}
+
+.graph-nav-active {
+    background: #e6e6e6;
+    border-color: #adadad;
+    outline: none;
 }
 
 .searchContainer {
