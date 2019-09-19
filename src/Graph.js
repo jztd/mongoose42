@@ -8,36 +8,38 @@ class Graph extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { itemId: props.itemId, priceData: [], displayData: [], displayOptions: {}, selectedButton: "Year" };
+        this.state = { 
+            refreshCounter: 0,
+            displayData: [],
+            displayOptions: {},
+            selectedButton: "Year" 
+        };
+        this.itemId = props.itemId;
         this.postFix = '';
+        this.datasets = [];
+        this.labels = [];
     }
 
     componentDidMount() {
 
-        this.api.getItemGraph(this.state.itemId).then(returnable => {
+        this.api.getItemGraph(this.itemId).then(returnable => {
             if (!returnable[0]) {
                 console.log("No pricing data was returned...");
                 return;
             }
-            let formatData = [];
             returnable.forEach(element => {
-                let time = new Date(element.date);
-                let price = element.daily;
-                formatData.push({x: time, y: price});
+                this.labels.push(new Date(element.date));
+                this.datasets.push(element.daily);
             });
-            this.setState({priceData: formatData, displayData: this.formatData(formatData), displayOptions: this.createOptions(this.postFix, 'month')});
+            this.setState({
+                refreshCounter: this.state.refreshCounter + 1,
+                displayData: this.formatData(this.datasets.slice(0),this.labels.slice(0)), //Was having issues because i didnt slice these inputs!!!
+                displayOptions: this.createOptions(this.postFix, 'month')
+            });
         });
     }
 
-    getArrayFromPrice = (data, axis) => {
-        return data.reduce((acc,element) => {
-            acc.push(element[axis]);
-            return acc;
-        },[]);
-    }
-
     formatPriceArray = (arr) => {
-        //Determine the average price
         let avg = arr.reduce((acc,element) => {
             acc += element;
             return acc;
@@ -54,9 +56,9 @@ class Graph extends Component {
         return arr;
     }
 
-    formatData = (data) => {
+    formatData = (data, label) => {
         return {
-            labels: this.getArrayFromPrice(data, 'x'),
+            labels: label,
             datasets: [{
                 label: 'Price',
                 backgroundColor: 'transparent',//This is the fill color from y = 0 to the data points
@@ -66,13 +68,16 @@ class Graph extends Component {
                 //pointHoverBackgroundColor: '#fff',//The hover fill color of the point
                 //pointHoverBorderColor: 'rgba(220,220,220,1)',//The hover stroke color of the point
                 borderColor: '#ff7f0e',//color of the border of the circles indicating datapoints?
-                data: this.formatPriceArray(this.getArrayFromPrice(data,'y'))
+                data: this.formatPriceArray(data)
             }]
         }
     }
 
     createOptions = (postFix, timeScale) => {
         return {
+            // animation: {
+            //     easing: 'linear'
+            // },
             layout: {
                 padding: {
                     left: 0,
@@ -126,29 +131,36 @@ class Graph extends Component {
     }
 
     updateChart = (range) => {
-        let length = this.state.priceData.length;
-        let newPriceArray = [];
         let timeScale = 'month';
+        let sliceInd = 0;
         switch (range) {
             case "Quarter":
-                newPriceArray = this.state.priceData.slice(length-1-91);
+                sliceInd = -90;
                 break;
             case "Month":
-                newPriceArray = this.state.priceData.slice(length-1-30);
+                sliceInd = -30;
                 timeScale = "week";
                 break;
             case "Week":
-                newPriceArray = this.state.priceData.slice(length-1-7);
+                sliceInd = -7;
                 timeScale = "day";
                 break;
             default:
-                newPriceArray = this.state.priceData;
                 break;
         }
-        this.setState({displayData: this.formatData(newPriceArray), displayOptions: this.createOptions(this.postFix, timeScale), selectedButton: range})
+        let fillInd = this.datasets.length + sliceInd;
+        let fillData = new Array(sliceInd ? fillInd : 0).fill(this.datasets[fillInd]);
+        let fillLabel = new Array(sliceInd ? fillInd : 0).fill(this.labels[fillInd]);
+        this.setState({
+            refreshCounter: this.state.refreshCounter + 1, 
+            displayData: this.formatData(fillData.concat(this.datasets.slice(sliceInd)), fillLabel.concat(this.labels.slice(sliceInd))),
+            displayOptions: this.createOptions(this.postFix, timeScale), 
+            selectedButton: range
+        });
     }
 
     render() {
+        console.log(this.state.displayData);
         return (
             <div class="col-sm-9 float-right mt-5">
                 <div class="col-sm-12 graph-nav row justify-content-end btn-group pt-2">
