@@ -21,7 +21,7 @@ class Graph extends Component {
     }
 
     componentDidMount() {
-
+        console.log(`The typeof this.itemId is ${typeof this.itemId}.`);
         this.api.getItemGraph(this.itemId).then(returnable => {
             if (!returnable[0]) {
                 console.log("No pricing data was returned...");
@@ -34,7 +34,7 @@ class Graph extends Component {
             this.setState({
                 refreshCounter: this.state.refreshCounter + 1,
                 displayData: this.formatData(this.datasets.slice(0),this.labels.slice(0)), //Was having issues because i didnt slice these inputs!!!
-                displayOptions: this.createOptions(this.postFix, 'month')
+                displayOptions: this.createOptions(this.postFix, 'month', 0)
             });
         });
     }
@@ -73,11 +73,17 @@ class Graph extends Component {
         }
     }
 
-    createOptions = (postFix, timeScale) => {
+    createOptions = (postFix, timeScale, tooltipStartInd) => {
         return {
-            // animation: {
-            //     easing: 'linear'
-            // },
+            tooltips: {
+                filter: function(tooltipItem) {
+                    if (tooltipItem.index < tooltipStartInd) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            },
             layout: {
                 padding: {
                     left: 0,
@@ -154,7 +160,7 @@ class Graph extends Component {
         this.setState({
             refreshCounter: this.state.refreshCounter + 1, 
             displayData: this.formatData(fillData.concat(this.datasets.slice(sliceInd)), fillLabel.concat(this.labels.slice(sliceInd))),
-            displayOptions: this.createOptions(this.postFix, timeScale), 
+            displayOptions: this.createOptions(this.postFix, timeScale, sliceInd ? fillInd : 0), 
             selectedButton: range
         });
     }
