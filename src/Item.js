@@ -39,8 +39,8 @@ class Item extends Component {
                         <p>{item.description}</p>
                         <img src={item.icon} alt={item.name} />
                     </div>
-                    <Graph itemId={item.id}/>
-                    <Graph itemId={21787}/>
+                    <Graph itemId={[item.id, 21787]}/>
+                    <Graph itemId={[21787]}/>
                 </div>
             );
         }
