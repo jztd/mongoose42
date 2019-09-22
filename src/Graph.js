@@ -17,6 +17,7 @@ class Graph extends Component {
         this.itemId = props.itemId.concat([0]);
         this.labels = [];
         this.datasets = {};
+        this.colors = ['#ff7f0e', '#00cc00', '#ff66cc', '#0066ff', '#9966ff'];
     }
 
     componentDidMount() {
@@ -66,16 +67,18 @@ class Graph extends Component {
         let formattedDatasets = [];
         let fillInd = this.labels.length + sliceInd;
         let fillData = new Array(sliceInd ? fillInd : 0).fill(this.datasets[fillInd]);
-        Object.keys(dataset).forEach(key =>
+        let count = 0;
+        Object.keys(dataset).forEach(key => {
+            let color = this.colors[count++];
             formattedDatasets.push({
                 label: key,
                 backgroundColor: 'transparent',     //Fill color from y = 0 to data points
-                pointBackgroundColor: '#ff7f0e',    //Fill color of data points
+                pointBackgroundColor: color,    //Fill color of data points
                 pointHoverRadius: 3,
-                borderColor: '#ff7f0e',             //Border color of data points
+                borderColor: color,             //Border color of data points
                 data: fillData.concat(dataset[key].slice(sliceInd))
             })
-        );
+        });
         return formattedDatasets;
     }
 
@@ -83,6 +86,8 @@ class Graph extends Component {
         let postFix = this.getPostFix();
         return {
             tooltips: {
+                mode: 'index',
+                intersect: false,
                 filter: function(tooltipItem) {
                     if (tooltipItem.index < tooltipStartInd) {
                         return false;
@@ -170,9 +175,9 @@ class Graph extends Component {
         });
     }
 
-    getPostFix = (dataset = this.datasets) => {
+    getPostFix = (dataset = this.datasets, fillInd = 0) => {
         let averages = [];
-        Object.keys(dataset).forEach(key => averages.push(this.getArrAvg(dataset[key])));
+        Object.keys(dataset).forEach(key => averages.push(this.getArrAvg(dataset[key], fillInd)));
         let max = averages.reduce((prev,curr) => {
             return prev > curr ? prev : curr;
         });
