@@ -25,6 +25,10 @@ body, html, #root, .container-flex{
     border-color: #adadad;
 }
 
+.graph-nav-active:focus {
+    box-shadow: none !important;
+}
+
 .searchContainer {
     width: 100%;
 }

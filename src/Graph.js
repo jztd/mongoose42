@@ -5,6 +5,12 @@ import './App.css';
 
 class Graph extends Component {
     api = new RuneApi();
+    static rangeToTime = {
+        'Year': {sliceInd: 0, timeScale: 'month'}, 
+        'Quarter': {sliceInd: -90, timeScale: 'month'}, 
+        'Month': {sliceInd: -30, timeScale: 'week'},
+        'Week': {sliceInd: -7, timeScale: 'day'}
+    };
 
     constructor(props) {
         super(props);
@@ -14,19 +20,17 @@ class Graph extends Component {
             displayOptions: {},
             selectedButton: "Year"
         };
-        this.itemId = props.itemId.concat([0]);
+        this.itemId = props.itemId;
+        this.itemName = props.itemName;
         this.labels = [];
         this.datasets = {};
-        this.colors = ['#ff7f0e', '#00cc00', '#ff66cc', '#0066ff', '#9966ff'];
+        this.colors = props.colors ? props.colors : ['#ff7f0e', '#00cc00', '#ff66cc', '#0066ff', '#9966ff'];
     }
 
     componentDidMount() {
         let promises = [];
 
         this.itemId.forEach(element => {
-            if (!element) {
-                return;
-            }
             promises.push(
                 this.api.getItemGraph(element).then(returnable => {
                     if (!returnable[0]) {
@@ -54,39 +58,44 @@ class Graph extends Component {
         );
     }
 
+    getFillInd = (sliceInd) => {
+        return sliceInd ? this.labels.length + sliceInd : 0;
+    }
+
     formatData = (dataset = this.datasets, labels = this.labels, sliceInd = 0) => {
-        let fillInd = this.labels.length + sliceInd;
-        let fillLabel = new Array(sliceInd ? fillInd : 0).fill(this.labels[fillInd]);
         return {
-            labels: fillLabel.concat(labels.slice(sliceInd)),
+            labels: this.getFillArray(labels, sliceInd).concat(labels.slice(sliceInd)),
             datasets: this.formatDatasets(dataset, sliceInd)
         }
     }
 
+    getFillArray = (array, sliceInd) => {
+        let fillInd = this.getFillInd(sliceInd);
+        return new Array(fillInd).fill(array[fillInd]);
+    }
+
     formatDatasets = (dataset = this.datasets, sliceInd = 0) => {
         let formattedDatasets = [];
-        let fillInd = this.labels.length + sliceInd;
-        let fillData = new Array(sliceInd ? fillInd : 0).fill(this.datasets[fillInd]);
         let count = 0;
         Object.keys(dataset).forEach(key => {
-            let color = this.colors[count++];
+            let color = this.colors[count];
             formattedDatasets.push({
-                label: key,
+                label: this.itemName[count++],
                 backgroundColor: 'transparent',     //Fill color from y = 0 to data points
                 pointBackgroundColor: color,    //Fill color of data points
                 pointHoverRadius: 3,
                 borderColor: color,             //Border color of data points
-                data: fillData.concat(dataset[key].slice(sliceInd))
+                data: this.getFillArray(dataset[key], sliceInd).concat(dataset[key].slice(sliceInd))
             })
         });
         return formattedDatasets;
     }
 
     createOptions = (dataset = this.datasets, timeScale = 'month', tooltipStartInd = 0) => {
-        let postFix = this.getPostFix();
+        let postFix = this.getPostFix(dataset);
         return {
             tooltips: {
-                mode: 'index',
+                mode: 'nearest',
                 intersect: false,
                 filter: function(tooltipItem) {
                     if (tooltipItem.index < tooltipStartInd) {
@@ -149,28 +158,11 @@ class Graph extends Component {
     }
 
     updateChart = (range = 'Year') => {
-        let timeScale = 'month';
-        let sliceInd = 0;
-        switch (range) {
-            case "Quarter":
-                sliceInd = -90;
-                break;
-            case "Month":
-                sliceInd = -30;
-                timeScale = "week";
-                break;
-            case "Week":
-                sliceInd = -7;
-                timeScale = "day";
-                break;
-            default:
-                break;
-        }
-        let fillInd = this.labels.length + sliceInd;
+        let timeData = Graph.rangeToTime[range];
         this.setState({
             refreshCounter: this.state.refreshCounter + 1, 
-            displayData: this.formatData(this.datasets, this.labels, sliceInd),
-            displayOptions: this.createOptions(this.datasets, timeScale, sliceInd ? fillInd : 0), 
+            displayData: this.formatData(this.datasets, this.labels, timeData.sliceInd),
+            displayOptions: this.createOptions(this.datasets, timeData.timeScale, this.getFillInd(timeData.sliceInd)), 
             selectedButton: range
         });
     }
