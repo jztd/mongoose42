@@ -13,7 +13,6 @@ class Graph extends Component {
     }
 
     componentDidMount() {
-
         this.api.getItemGraph(this.state.itemId).then(returnable => {
             if (!returnable[0]) {
                 console.log("No pricing data was returned...");
@@ -27,6 +26,29 @@ class Graph extends Component {
             });
             this.setState({priceData: formatData, displayData: this.formatData(formatData), displayOptions: this.createOptions(this.postFix, 'month')});
         });
+
+    }
+
+    componentDidUpdate(prevProps) {
+        console.log("GRAPH UPDATE");
+        console.log("previous prop " + prevProps.itemId);
+        console.log("current prop " + this.props.itemId)
+        if (prevProps.itemId !== this.props.itemId) {
+            console.log("GRAPH STTING NEW DATA");
+            this.api.getItemGraph(this.state.itemId).then(returnable => {
+                if (!returnable[0]) {
+                    console.log("No pricing data was returned...");
+                    return;
+                }
+                let formatData = [];
+                returnable.forEach(element => {
+                    let time = new Date(element.date);
+                    let price = element.daily;
+                    formatData.push({x: time, y: price});
+                });
+                this.setState({priceData: formatData, displayData: this.formatData(formatData), displayOptions: this.createOptions(this.postFix, 'month')});
+            });
+        }
     }
 
     getArrayFromPrice = (data, axis) => {
@@ -149,6 +171,7 @@ class Graph extends Component {
     }
 
     render() {
+        console.log('RERENDIGNER GRAPH');
         return (
             <div class="col-sm-9 float-right mt-5">
                 <div class="col-sm-12 graph-nav row justify-content-end btn-group pt-2">
