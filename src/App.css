@@ -23,7 +23,10 @@ body, html, #root, .container-flex{
 .graph-nav-active {
     background: #e6e6e6;
     border-color: #adadad;
-    outline: none;
+}
+
+.graph-nav-active:focus {
+    box-shadow: none !important;
 }
 
 .searchContainer {
