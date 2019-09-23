@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Item from './Item';
+import TopBanner from './TopBanner';
 import './App.css';
 
 class ItemPage extends Component {
@@ -8,10 +9,26 @@ class ItemPage extends Component {
         super(props);
         this.state = { itemName: this.props.match.params.name };
     }
+    
+    componentDidUpdate(prevProps) {
+
+        if (prevProps.match.params.name !== this.props.match.params.name) {
+            console.log("setting state");
+            this.setState({ itemName: this.props.match.params.name });
+        }
+    }
+    componentDidMount() {
+        this.setState({ itemName: this.props.match.params.name });
+    }
 
     render() {
         return (
-            <Item itemName={this.state.itemName}/>
+            <>
+                <div class="row">
+                    <TopBanner />
+                </div>
+                <Item itemName={this.state.itemName} />
+            </>
         );
     }
 }

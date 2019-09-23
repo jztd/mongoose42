@@ -19,29 +19,34 @@ class Item extends Component {
         super(props);
         this.state = { item: "" };
     }
-
-
-    componentDidMount () {
-       
+    componentDidMount() {
         this.api.getItemInfo(this.props.itemName).then(response => {
-            this.setState({item : response});
+            this.setState({ item: response });
         });
-        
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.itemName !== this.props.itemName) {
+            this.api.getItemInfo(this.props.itemName).then(response => {
+                this.setState({ item: response });
+            });
+        }
+    }
+    
     render() {
         const item = this.state.item;
         if(item){
             return (
-                <div>
-                    <div>
-                        <p>{item.name}</p>
-                        <p>{item.description}</p>
-                        <img src={item.icon} alt={item.name} />
+                <>
+                    <div class="row">
+                        <div class="col-1">{item.name}</div>
+                        <div class="col-1">{item.description}</div>
+                        <img class="col-2" src={item.icon} alt={item.name} />
                     </div>
-                    <Graph itemId={item.id}/>
-                    <Graph itemId={21787}/>
-                </div>
+                    <div class="row">
+                        <Graph itemId={item.id}/>
+                    </div>
+                </>
             );
         }
         return "";
