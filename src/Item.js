@@ -44,13 +44,14 @@ class Item extends Component {
                         <img class="col-2" src={item.icon} alt={item.name} />
                     </div>
                     <div class="row">
-                        <Graph itemName={[item.name,'Steadfast Boots']} itemId={[item.id, 21787]}/>
-                        <Graph itemName={['Steadfast Boots']} itemId={[21787]}/>
+                        <div class="col-12">
+                            <Graph itemName={[item.name, 'Steadfast Boots']} itemId={[item.id, 21787]} />
+                        </div>
                     </div>
                 </>
             );
         }
-        return "";
+        return "No Item Information avaliable";
     }
 }
 

@@ -196,7 +196,7 @@ class Graph extends Component {
     render() {
         console.log('RERENDIGNER GRAPH');
         return (
-            <div className="col-sm-9 float-right mt-5">
+            <div className="col float-right pt-5">
                 <div className="col-sm-12 graph-nav row justify-content-end btn-group pt-2">
                     <button className={`btn ${this.state.selectedButton === "Year" ? "graph-nav-active" : "graph-nav"}`} id="Year" type="button" onClick={() => this.updateChart("Year")}>Year</button>
                     <button className={`btn ${this.state.selectedButton === "Quarter" ? "graph-nav-active" : "graph-nav"}`} id="Quarter" type="button" onClick={() => this.updateChart("Quarter")}>Quarter</button>
@@ -205,7 +205,9 @@ class Graph extends Component {
                     <button className={`btn ${this.state.selectedButton === "Day" ? "graph-nav-active" : "graph-nav"}`} id="Day" type="button">Day</button>
                 </div>
                 <div className="row" id="graph">
-                    <Line data={this.state.displayData} options={this.state.displayOptions}/>
+                    <div class="col">
+                        <Line data={this.state.displayData} options={this.state.displayOptions}/>
+                    </div>
                 </div>
             </div>
         );

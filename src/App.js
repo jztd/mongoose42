@@ -6,17 +6,12 @@ import ItemPage from './ItemPage';
 function Container() {
     return (
         <BrowserRouter>
-            <div className="container-flex">
-                <div class="row">
-                    <div class="col-3 sidebar">
-                        STUFF GOES HERE
-                    </div>
-                    <div class="col-9">
-                        <Switch>
-                            <Route exact path="/" component={ItemLookup} />
-                            <Route path="/item/:name" component={ItemPage} />
-                        </Switch>
-                    </div>
+            <div className="container-fluid h-100 ">
+                <div class="row h-100">
+                    <Switch>
+                        <Route exact path="/" component={ItemLookup} />
+                        <Route path="/item/:name" component={ItemPage} />
+                    </Switch>
                 </div>
             </div>
         </BrowserRouter>

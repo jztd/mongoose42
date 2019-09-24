@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect, withRouter } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import './App.css';
 import LevenschteinSearch from './LevenschteinSearch';
 import Autosuggest from 'react-autosuggest';
@@ -55,7 +55,6 @@ class SearchBox extends Component {
     }
     onSuggestionSelected = (event, { suggestion, suggestionValue }) => {
         console.log('pushing stuff to history');
-        // this.props.history.push(`/item/${suggestionValue}`);
         this.setState({redirect:true});
     }
     onSuggestionHighlighted = ({suggestion}) => {
@@ -74,7 +73,7 @@ class SearchBox extends Component {
         }
 
         return (
-            <div class="searchContainer">
+            <>
                 <Autosuggest
                     suggestions={suggestions}
                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
@@ -84,7 +83,7 @@ class SearchBox extends Component {
                     onSuggestionSelected={this.onSuggestionSelected}
                     inputProps={inputProps}
                 />
-            </div>
+            </>
         );
     }
 }
