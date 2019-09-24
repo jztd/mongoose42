@@ -16,6 +16,7 @@ class Graph extends Component {
         super(props);
         this.state = { 
             refreshCounter: 0,
+            datasets: {},
             displayData: [],
             displayOptions: {},
             selectedButton: "Year"
@@ -52,8 +53,10 @@ class Graph extends Component {
         Promise.all(promises).then(() => 
             this.setState({
                 refreshCounter: this.state.refreshCounter + 1,
-                displayData: this.formatData(),
-                displayOptions: this.createOptions()
+                datasets: this.datasets,
+                labels: this.labels,
+                displayData: this.formatData(this.datasets, this.labels, 0),
+                displayOptions: this.createOptions(this.datasets, 'month', 0)
             })
         );
     }
@@ -62,7 +65,7 @@ class Graph extends Component {
         return sliceInd ? this.labels.length + sliceInd : 0;
     }
 
-    formatData = (dataset = this.datasets, labels = this.labels, sliceInd = 0) => {
+    formatData = (dataset = this.state.datasets, labels = this.state.labels, sliceInd = 0) => {
         return {
             labels: this.getFillArray(labels, sliceInd).concat(labels.slice(sliceInd)),
             datasets: this.formatDatasets(dataset, sliceInd)
@@ -74,7 +77,7 @@ class Graph extends Component {
         return new Array(fillInd).fill(array[fillInd]);
     }
 
-    formatDatasets = (dataset = this.datasets, sliceInd = 0) => {
+    formatDatasets = (dataset = this.state.datasets, sliceInd = 0) => {
         let formattedDatasets = [];
         let count = 0;
         Object.keys(dataset).forEach(key => {
@@ -91,8 +94,8 @@ class Graph extends Component {
         return formattedDatasets;
     }
 
-    createOptions = (dataset = this.datasets, timeScale = 'month', tooltipStartInd = 0) => {
-        let postFix = this.getPostFix(dataset);
+    createOptions = (dataset = this.state.datasets, timeScale = 'month', tooltipStartInd = 0) => {
+        let postFix = this.getPostFix(dataset, tooltipStartInd);
         return {
             tooltips: {
                 mode: 'nearest',
@@ -160,14 +163,14 @@ class Graph extends Component {
     updateChart = (range = 'Year') => {
         let timeData = Graph.rangeToTime[range];
         this.setState({
-            refreshCounter: this.state.refreshCounter + 1, 
-            displayData: this.formatData(this.datasets, this.labels, timeData.sliceInd),
-            displayOptions: this.createOptions(this.datasets, timeData.timeScale, this.getFillInd(timeData.sliceInd)), 
+            refreshCounter: this.state.refreshCounter + 1,
+            displayData: this.formatData(this.state.datasets, this.state.labels, timeData.sliceInd),
+            displayOptions: this.createOptions(this.state.datasets, timeData.timeScale, this.getFillInd(timeData.sliceInd)), 
             selectedButton: range
         });
     }
 
-    getPostFix = (dataset = this.datasets, fillInd = 0) => {
+    getPostFix = (dataset = this.state.datasets, fillInd = 0) => {
         let averages = [];
         Object.keys(dataset).forEach(key => averages.push(this.getArrAvg(dataset[key], fillInd)));
         let max = averages.reduce((prev,curr) => {
@@ -184,17 +187,56 @@ class Graph extends Component {
         }
     }
 
-    getArrAvg = (arr = [0]) => {
-        let avg = arr.reduce((acc,element) => {
+    getArrAvg = (arr = [0], fillInd = 0) => {
+        let avg = arr.slice(fillInd).reduce((acc,element) => {
             acc += element;
             return acc;
         });
-        avg /= arr.length;
+        avg /= (arr.length - fillInd);
         return Math.floor(avg);
+    }
+
+    updateData = (dataset = this.state.datasets, itemId) => {
+        let keys = Object.keys(dataset);
+        let newDatasets = JSON.parse(JSON.stringify(this.state.datasets));
+        let flag = false;
+        console.log(`Keys are:\t${keys}`);
+        keys.forEach(key => {
+            console.log(`lksjglkdjlsdkgj`+typeof this.itemId[0] + typeof key);
+            if (key === itemId.toString()) {
+                delete newDatasets[key];
+                console.log(`TRUE`);
+                flag = true;
+            }
+        });
+
+        if (!flag) {
+            newDatasets[itemId] = this.datasets[itemId];
+        }
+        console.log(newDatasets);
+
+        
+        this.setState({
+            refreshCounter: this.state.refreshCounter + 1,
+            datasets: newDatasets,
+            displayData: this.formatData(newDatasets, this.state.labels, Graph.rangeToTime[this.state.selectedButton].sliceInd),
+            displayOptions: this.createOptions(newDatasets, Graph.rangeToTime[this.state.selectedButton].timeScale, this.getFillInd(Graph.rangeToTime[this.state.selectedButton].sliceInd))
+        });
     }
 
     render() {
         return (
+            <>
+            <div className="dropdown">
+                <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Dropdown
+                </button>
+                <div className="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <button className="dropdown-item" type="button" onClick={() => this.updateData(this.state.datasets, this.itemId[0])}>{this.itemName[0]}</button>
+                    <button className="dropdown-item" type="button">Another action</button>
+                    <button className="dropdown-item" type="button">Something else here</button>
+                </div>
+            </div>
             <div className="col-sm-9 float-right mt-5">
                 <div className="col-sm-12 graph-nav row justify-content-end btn-group pt-2">
                     <button className={`btn ${this.state.selectedButton === "Year" ? "graph-nav-active" : "graph-nav"}`} id="Year" type="button" onClick={() => this.updateChart("Year")}>Year</button>
@@ -207,6 +249,7 @@ class Graph extends Component {
                     <Line data={this.state.displayData} options={this.state.displayOptions}/>
                 </div>
             </div>
+            </>
         );
     }
 }

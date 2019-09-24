@@ -39,7 +39,7 @@ class Item extends Component {
                         <p>{item.description}</p>
                         <img src={item.icon} alt={item.name} />
                     </div>
-                    <Graph itemName={[item.name,'Steadfast Boots']} itemId={[item.id, 21787]}/>
+                    <Graph itemName={[item.name, 'Steadfast Boots']} itemId={[item.id, 21787]}/>
                     <Graph itemName={['Steadfast Boots']} itemId={[21787]}/>
                 </div>
             );
