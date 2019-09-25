@@ -9,6 +9,92 @@ body, html, #root, .container-flex{
     color: rgb(129, 124, 124);
 }
 
+.checkBox {
+    position: relative;
+    float: left;
+    margin-left: 20px;
+    margin-top: 15px;
+}
+
+.checkBox label {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 4px; 
+}
+
+.checkBox label:after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 4px; 
+    opacity: 0;
+    border: 1px solid #000;
+}
+
+.checkBox label:hover::after {
+    opacity: 0.3;
+}
+
+.checkBox input[type=checkbox] {
+    visibility: hidden;
+}
+
+.checkBox input[type=checkbox]:checked + label:after {
+    opacity: 1;
+}
+
+.checkBox-1 label {
+    background: #ff7f0e;
+}
+
+.checkBox-1 label:after {
+    background-image: radial-gradient(circle, #ff7f0e, black);
+}
+
+.checkBox-2 label {
+    background: #00cc00;
+}
+
+.checkBox-2 label:after {
+    background-image: radial-gradient(circle, #00cc00, black);
+}
+
+.checkBox-3 label {
+    background: #ff66cc;
+}
+
+.checkBox-3 label:after {
+    background-image: radial-gradient(circle, #ff66cc, black);
+}
+
+.checkBox-4 label {
+    background: #0066ff;
+}
+
+.checkBox-4 label:after {
+    background-image: radial-gradient(circle, #0066ff, black);
+}
+
+.checkBox-5 label {
+    background: #9966ff;
+}
+
+.checkBox-5 label:after {
+    background-image: radial-gradient(circle, #9966ff, black);
+}
+
+.blah {
+    background: white;
+}
+
+
 #graph {
     background: #fff;
     height: 100%;
@@ -23,7 +109,10 @@ body, html, #root, .container-flex{
 .graph-nav-active {
     background: #e6e6e6;
     border-color: #adadad;
-    outline: none;
+}
+
+.graph-nav-active:focus {
+    box-shadow: none !important;
 }
 
 .searchContainer {
