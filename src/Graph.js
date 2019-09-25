@@ -9,7 +9,8 @@ class Graph extends Component {
         'Year': {sliceInd: 0, timeScale: 'month'}, 
         'Quarter': {sliceInd: -90, timeScale: 'month'}, 
         'Month': {sliceInd: -30, timeScale: 'week'},
-        'Week': {sliceInd: -7, timeScale: 'day'}
+        'Week': {sliceInd: -7, timeScale: 'day'},
+        'Day': {sliceInd:-1, timeScale: 'hour'}
     };
 
     constructor(props) {
@@ -61,37 +62,60 @@ class Graph extends Component {
         );
     }
 
-    getFillInd = (sliceInd) => {
-        return sliceInd ? this.labels.length + sliceInd : 0;
-    }
-
     formatData = (dataset = this.state.datasets, labels = this.state.labels, sliceInd = 0) => {
         return {
             labels: this.getFillArray(labels, sliceInd).concat(labels.slice(sliceInd)),
             datasets: this.formatDatasets(dataset, sliceInd)
         }
     }
-
+    
     getFillArray = (array, sliceInd) => {
         let fillInd = this.getFillInd(sliceInd);
         return new Array(fillInd).fill(array[fillInd]);
     }
 
+    getFillInd = (sliceInd) => {
+        return sliceInd ? this.labels.length + sliceInd : 0;
+    }
+    
     formatDatasets = (dataset = this.state.datasets, sliceInd = 0) => {
         let formattedDatasets = [];
-        let count = 0;
         Object.keys(dataset).forEach(key => {
-            let color = this.colors[count];
+            let color = this.getColorfromItemId(key);       //There's only 5 colors available
             formattedDatasets.push({
-                label: this.itemName[count++],
+                label: this.getItemNamefromItemId(key),
                 backgroundColor: 'transparent',     //Fill color from y = 0 to data points
-                pointBackgroundColor: color,    //Fill color of data points
+                pointBackgroundColor: color,        //Fill color of data points
                 pointHoverRadius: 3,
-                borderColor: color,             //Border color of data points
+                borderColor: color,                 //Border color of data points
                 data: this.getFillArray(dataset[key], sliceInd).concat(dataset[key].slice(sliceInd))
             })
         });
         return formattedDatasets;
+    }
+
+    getColorfromItemId = (itemId) => {
+        let count = 0;
+        let color = '';
+        this.itemId.forEach(id => {
+            if (id == itemId) {
+                color = this.colors[count];
+            }
+            count++;
+        });
+        return color;
+    }
+
+    getItemNamefromItemId = (itemId) => {
+        let count = 0;
+        let itemName = '';
+        this.itemId.forEach(id => {
+            if (id == itemId) {
+                itemName = this.itemName[count];
+            }
+            count++;
+        });
+        return itemName;
     }
 
     createOptions = (dataset = this.state.datasets, timeScale = 'month', tooltipStartInd = 0) => {
@@ -144,7 +168,7 @@ class Graph extends Component {
                         labelString: 'Price (gp)'
                     },
                     ticks: {
-                        callback: function(label,index,labels) {
+                        callback: function(label) {
                             if (postFix === 'B') {
                                 return `${label/1000000000}${postFix}`;
                             } else if (postFix === 'M') {
@@ -159,18 +183,11 @@ class Graph extends Component {
             }
         }
     }
-
-    updateChart = (range = 'Year') => {
-        let timeData = Graph.rangeToTime[range];
-        this.setState({
-            refreshCounter: this.state.refreshCounter + 1,
-            displayData: this.formatData(this.state.datasets, this.state.labels, timeData.sliceInd),
-            displayOptions: this.createOptions(this.state.datasets, timeData.timeScale, this.getFillInd(timeData.sliceInd)), 
-            selectedButton: range
-        });
-    }
-
+    
     getPostFix = (dataset = this.state.datasets, fillInd = 0) => {
+        if (!Object.keys(dataset)[0]){
+            return '';
+        }
         let averages = [];
         Object.keys(dataset).forEach(key => averages.push(this.getArrAvg(dataset[key], fillInd)));
         let max = averages.reduce((prev,curr) => {
@@ -196,59 +213,103 @@ class Graph extends Component {
         return Math.floor(avg);
     }
 
+    updateChart = (range = 'Year') => {
+        let timeData = Graph.rangeToTime[range];
+        this.setState({
+            refreshCounter: this.state.refreshCounter + 1,
+            displayData: this.formatData(this.state.datasets, this.state.labels, timeData.sliceInd),
+            displayOptions: this.createOptions(this.state.datasets, timeData.timeScale, this.getFillInd(timeData.sliceInd)), 
+            selectedButton: range
+        });
+    }
+
     updateData = (dataset = this.state.datasets, itemId) => {
-        let keys = Object.keys(dataset);
-        let newDatasets = JSON.parse(JSON.stringify(this.state.datasets));
-        let flag = false;
-        console.log(`Keys are:\t${keys}`);
-        keys.forEach(key => {
-            console.log(`lksjglkdjlsdkgj`+typeof this.itemId[0] + typeof key);
-            if (key === itemId.toString()) {
-                delete newDatasets[key];
-                console.log(`TRUE`);
-                flag = true;
+        let timeData = Graph.rangeToTime[this.state.selectedButton];
+        let modifiedDatasets = JSON.parse(JSON.stringify(dataset));
+        let foundItem = false;
+        Object.keys(dataset).forEach(key => {
+            if (key == itemId) {
+                delete modifiedDatasets[key];
+                foundItem = true;
             }
         });
 
-        if (!flag) {
-            newDatasets[itemId] = this.datasets[itemId];
+        if (!foundItem) {
+            modifiedDatasets[itemId] = this.datasets[itemId];
         }
-        console.log(newDatasets);
 
-        
         this.setState({
             refreshCounter: this.state.refreshCounter + 1,
-            datasets: newDatasets,
-            displayData: this.formatData(newDatasets, this.state.labels, Graph.rangeToTime[this.state.selectedButton].sliceInd),
-            displayOptions: this.createOptions(newDatasets, Graph.rangeToTime[this.state.selectedButton].timeScale, this.getFillInd(Graph.rangeToTime[this.state.selectedButton].sliceInd))
+            datasets: modifiedDatasets,
+            displayData: this.formatData(modifiedDatasets, this.state.labels, timeData.sliceInd),
+            displayOptions: this.createOptions(modifiedDatasets, timeData.timeScale, this.getFillInd(timeData.sliceInd))
         });
+    }
+
+    getCheckBox = (amt) => {
+        if (amt < 1 || !amt) {
+            return;
+        }
+        return (
+            <>
+                {this.getCheckBox(amt-1)}
+                <div className={`checkBox checkBox-${amt}`}>
+                    <input type="checkbox" id={`checkOther${amt}`} onClick={() => this.updateData(this.state.datasets, this.itemId[amt-1])}></input>
+                    <label for={`checkOther${amt}`}></label>
+                </div>
+            </>
+        )
+    }
+
+    getButton = (name) => {
+        let names = Object.keys(Graph.rangeToTime);
+        if (names[names.length-1] === name) {
+            return (
+                <>
+                    <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.updateChart(name)}>{name}</button>
+                </>
+            );
+        }
+        return (
+            <>
+                <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.updateChart(name)}>{name}</button>
+                {this.getButton(this.findNextName(names, name))}
+            </>
+        );
+    }
+
+    findNextName = (names, name) => {
+        let nextName = '';
+        let flag = false;
+        names.forEach(element => {
+            if (flag) {
+                nextName = element;
+                flag = false;
+            }
+            if (element === name) {
+                flag = true;
+                return;
+            }
+        });
+        return nextName;
     }
 
     render() {
         return (
             <>
-            <div className="dropdown">
-                <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Dropdown
-                </button>
-                <div className="dropdown-menu" aria-labelledby="dropdownMenu2">
-                    <button className="dropdown-item" type="button" onClick={() => this.updateData(this.state.datasets, this.itemId[0])}>{this.itemName[0]}</button>
-                    <button className="dropdown-item" type="button">Another action</button>
-                    <button className="dropdown-item" type="button">Something else here</button>
+                <div className="col-sm-9 float-right mt-5">
+                    <div className="col-sm-12 blah row">
+                        <div className="col-sm-7 justify-content-end">
+                            {this.getCheckBox(Object.keys(this.datasets).length)}
+                        </div>
+                        <div className="col-sm-5 justify-content-end btn-group pt-2">
+                            {this.getButton(Object.keys(Graph.rangeToTime)[0])}
+                        </div>
+                    </div>
+                    <div className="row" id="graph">
+                        <Line data={this.state.displayData} options={this.state.displayOptions}/>
+                    </div>
                 </div>
-            </div>
-            <div className="col-sm-9 float-right mt-5">
-                <div className="col-sm-12 graph-nav row justify-content-end btn-group pt-2">
-                    <button className={`btn ${this.state.selectedButton === "Year" ? "graph-nav-active" : "graph-nav"}`} id="Year" type="button" onClick={() => this.updateChart("Year")}>Year</button>
-                    <button className={`btn ${this.state.selectedButton === "Quarter" ? "graph-nav-active" : "graph-nav"}`} id="Quarter" type="button" onClick={() => this.updateChart("Quarter")}>Quarter</button>
-                    <button className={`btn ${this.state.selectedButton === "Month" ? "graph-nav-active" : "graph-nav"}`} id="Month" type="button" onClick={() => this.updateChart("Month")}>Month</button>
-                    <button className={`btn ${this.state.selectedButton === "Week" ? "graph-nav-active" : "graph-nav"}`} id="Week" type="button" onClick={() => this.updateChart("Week")}>Week</button>
-                    <button className={`btn ${this.state.selectedButton === "Day" ? "graph-nav-active" : "graph-nav"}`} id="Day" type="button">Day</button>
-                </div>
-                <div className="row" id="graph">
-                    <Line data={this.state.displayData} options={this.state.displayOptions}/>
-                </div>
-            </div>
             </>
         );
     }
