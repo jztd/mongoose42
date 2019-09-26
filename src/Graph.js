@@ -22,6 +22,7 @@ class Graph extends Component {
             displayOptions: {},
             selectedButton: "Year"
         };
+        this.id = Math.floor(Math.random() * 100);
         this.itemId = props.itemId;
         this.itemName = props.itemName;
         this.labels = [];
@@ -254,8 +255,8 @@ class Graph extends Component {
             <>
                 {this.getCheckBox(amt-1)}
                 <div className={`checkBox checkBox-${amt}`}>
-                    <input type="checkbox" id={`checkOther${amt}`} onClick={() => this.updateData(this.state.datasets, this.itemId[amt-1])}></input>
-                    <label for={`checkOther${amt}`}></label>
+                    <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.updateData(this.state.datasets, this.itemId[amt-1])}></input>
+                    <label for={`graphId${this.id}-${amt}`}></label>
                 </div>
             </>
         )
