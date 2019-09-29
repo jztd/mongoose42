@@ -157,4 +157,9 @@ body, html, #root, .container-flex{
     border-bottom-right-radius: 4px;
     z-index: 2;
   }
+
+.sidebar {
+    background-color: #604370;
+    color: white;
+}
   
