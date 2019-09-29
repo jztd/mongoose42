@@ -6,7 +6,6 @@ import LevenschteinSearch from './LevenschteinSearch';
 import Autosuggest from 'react-autosuggest';
 
 
-
 class SearchBox extends Component {
     static propTypes = {
         value: PropTypes.string,
@@ -54,7 +53,8 @@ class SearchBox extends Component {
     onChange = (event, { newValue }) => {
         this.setState({ value: newValue });
     }
-    onSuggestionSelected = (event, {suggestion, suggestionValue}) => {
+    onSuggestionSelected = (event, { suggestion, suggestionValue }) => {
+        console.log('pushing stuff to history');
         this.setState({redirect:true});
     }
     onSuggestionHighlighted = ({suggestion}) => {
@@ -68,11 +68,12 @@ class SearchBox extends Component {
             onChange: this.onChange
         }
         if (this.state.redirect === true) {
-            return (<Redirect to={`item/${this.state.value}`} push={true} />);
+            this.state.redirect = false;
+            return (<Redirect to={`/item/${this.state.value}`} push={true} />);
         }
 
         return (
-            <div class="searchContainer">
+            <>
                 <Autosuggest
                     suggestions={suggestions}
                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
@@ -82,9 +83,7 @@ class SearchBox extends Component {
                     onSuggestionSelected={this.onSuggestionSelected}
                     inputProps={inputProps}
                 />
-            </div>
-
-
+            </>
         );
     }
 }
