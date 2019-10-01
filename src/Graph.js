@@ -64,14 +64,17 @@ class Graph extends Component {
                 })
             )
         });
+
+        let sliceInd = Graph.rangeToTime[this.state.selectedButton].sliceInd;
+        let timeScale = Graph.rangeToTime[this.state.selectedButton].timeScale;
         
         Promise.all(promises).then(() => 
             this.setState({
                 refreshCounter: this.state.refreshCounter + 1,
                 datasets: this.datasets,
                 labels: this.labels,
-                displayData: this.formatData(this.datasets, this.labels, 0),
-                displayOptions: this.createOptions(this.datasets, 'month', 0)
+                displayData: this.formatData(this.datasets, this.labels, sliceInd),
+                displayOptions: this.createOptions(this.datasets, timeScale, this.getFillInd(sliceInd))
             })
         );
     }
