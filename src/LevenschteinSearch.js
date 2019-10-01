@@ -203,7 +203,6 @@ class LevenschteinSearch {
     //      a priority order such that if the best levenschtein distance is the result
     //      of word length without a match, that result loses priority.
     static getCloseNames = (searchTerm) => {
-        console.log(searchTerm);
         const splitSearchTerm = searchTerm.split(" ");
         let closeItems = [];
 
@@ -226,8 +225,6 @@ class LevenschteinSearch {
             }
             this.insertItem([this.bubbleSort2(distArr), element], closeItems);
         });
-
-        closeItems.forEach(item => console.log(item));
 
         //Return list of search suggestions
         return closeItems.reduce((obj, currentshit) => {

@@ -12,6 +12,7 @@ class Graph extends Component {
         'Week': {sliceInd: -7, timeScale: 'day'},
         'Day': {sliceInd:-1, timeScale: 'hour'}
     };
+    static graphCount = 0;
 
     constructor(props) {
         super(props);
@@ -22,7 +23,7 @@ class Graph extends Component {
             displayOptions: {},
             selectedButton: "Year"
         };
-        this.id = Math.floor(Math.random() * 100);
+        this.id = this.graphCount++;
         this.itemId = props.itemId;
         this.itemName = props.itemName;
         this.labels = [];
@@ -31,6 +32,18 @@ class Graph extends Component {
     }
 
     componentDidMount() {
+        this.setUpGraph();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!this.compareItems(prevProps.itemName)) {
+            this.setUpGraph();  
+        }
+    }
+
+    //Requires this.itemId, this.itemName, this.labels, this.datasets to be setup/nulled
+    setUpGraph = () => {
+        this.nullProps();
         let promises = [];
 
         this.itemId.forEach(element => {
@@ -61,6 +74,31 @@ class Graph extends Component {
                 displayOptions: this.createOptions(this.datasets, 'month', 0)
             })
         );
+    }
+
+    nullProps = () => {
+        this.itemId = this.props.itemId;
+        this.itemName = this.props.itemName;
+        this.datasets = {};
+        this.labels = [];
+    }
+
+    //Needed to compare each item name, comparing just the lists of items would trigger
+    //the if-statement before the new item names/ids were actually passed...
+    compareItems = (prevItemNames) => {
+        let returnValue = true;
+        prevItemNames.forEach(name => {
+            let flag2 = false;
+            this.props.itemName.forEach(currName => {
+                if (name === currName) {
+                    flag2 = true;
+                }
+            });
+            if (!flag2) {
+                returnValue = false;
+            }
+        });
+        return returnValue;
     }
 
     formatData = (dataset = this.state.datasets, labels = this.state.labels, sliceInd = 0) => {
