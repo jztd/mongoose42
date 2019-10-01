@@ -23,7 +23,7 @@ class Graph extends Component {
             displayOptions: {},
             selectedButton: "Year"
         };
-        this.id = this.graphCount++;
+        this.id = Graph.graphCount++;
         this.itemId = props.itemId;
         this.itemName = props.itemName;
         this.labels = [];
@@ -37,6 +37,10 @@ class Graph extends Component {
 
     componentDidUpdate(prevProps) {
         if (!this.compareItems(prevProps.itemName)) {
+            document.getElementById(`graph-${this.id}_checkbox-1`).click(); //Forces an onClick() event
+            //Somehow it refreshes the checkbox '::after' settings so that when the graph reloads
+            //all lines are shown and the boxes are reset.....idk, it works
+            //REALLY NEED TO UPDATE THIS SO THAT THERE IS A MORE DIRECT LINK BETWEEN CSS AND DATA SHOWN STATES!!!
             this.setUpGraph();  
         }
     }
@@ -255,7 +259,7 @@ class Graph extends Component {
         return Math.floor(avg);
     }
 
-    updateChart = (range = 'Year') => {
+    changeChartRange = (range = 'Year') => {
         let timeData = Graph.rangeToTime[range];
         this.setState({
             refreshCounter: this.state.refreshCounter + 1,
@@ -265,7 +269,7 @@ class Graph extends Component {
         });
     }
 
-    updateData = (dataset = this.state.datasets, itemId) => {
+    changeDisplayData = (dataset = this.state.datasets, itemId) => {
         let timeData = Graph.rangeToTime[this.state.selectedButton];
         let modifiedDatasets = JSON.parse(JSON.stringify(dataset));
         let foundItem = false;
@@ -296,8 +300,8 @@ class Graph extends Component {
             <>
                 {this.getCheckBox(amt-1)}
                 <div className={`checkBox checkBox-${amt}`}>
-                    <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.updateData(this.state.datasets, this.itemId[amt-1])}></input>
-                    <label htmlFor={`graphId${this.id}-${amt}`}></label>
+                    <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.changeDisplayData(this.state.datasets, this.itemId[amt-1])}></input>
+                    <label id={`graph-${this.id}_checkbox-${amt}`} htmlFor={`graphId${this.id}-${amt}`}></label>
                 </div>
             </>
         )
@@ -308,13 +312,13 @@ class Graph extends Component {
         if (names[names.length-1] === name) {
             return (
                 <>
-                    <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.updateChart(name)}>{name}</button>
+                    <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
                 </>
             );
         }
         return (
             <>
-                <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.updateChart(name)}>{name}</button>
+                <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
                 {this.getButton(this.findNextName(names, name))}
             </>
         );
