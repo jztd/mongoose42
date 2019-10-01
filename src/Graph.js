@@ -294,7 +294,7 @@ class Graph extends Component {
                 {this.getCheckBox(amt-1)}
                 <div className={`checkBox checkBox-${amt}`}>
                     <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.updateData(this.state.datasets, this.itemId[amt-1])}></input>
-                    <label for={`graphId${this.id}-${amt}`}></label>
+                    <label htmlFor={`graphId${this.id}-${amt}`}></label>
                 </div>
             </>
         )
