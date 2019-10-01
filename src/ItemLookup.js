@@ -17,7 +17,7 @@ class ItemLookup extends Component {
 
     render() {
         return (
-            <div class="h-100 row align-items-center">
+            <div class="row h-100 justify-content-center align-items-center w-100">
                 <SearchBox id="searchBox" label="Item Name" parentFunction={this.handleItemChange}/>
             </div>
         );
