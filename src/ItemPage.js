@@ -24,11 +24,11 @@ class ItemPage extends Component {
     render() {
         return (
             <>
-                <div class="col-sm-2 sidebar h-100">
+                <div className="col-sm-2 sidebar h-100">
                     fdsfsdfsdf
                 </div>
-                <div class="col-sm-10">
-                    <div class="row">
+                <div className="col-sm-10">
+                    <div className="row">
                         <TopBanner />
                     </div>
                         <Item itemName={this.state.itemName} />

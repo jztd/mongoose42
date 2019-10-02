@@ -10,7 +10,7 @@ class TopBanner extends Component{
     render() {
         return (
             <>
-                <div class="col-4">
+                <div className="col-4">
                     <SearchBox id="searchBox" label="Item Name"/>
                 </div>
             </>

@@ -12,6 +12,7 @@ class Graph extends Component {
         'Week': {sliceInd: -7, timeScale: 'day'},
         'Day': {sliceInd:-1, timeScale: 'hour'}
     };
+    static graphCount = 0;
 
     constructor(props) {
         super(props);
@@ -22,17 +23,34 @@ class Graph extends Component {
             displayOptions: {},
             selectedButton: "Year"
         };
-        this.itemId = props.itemId;
-        this.itemName = props.itemName;
+        this.id = Graph.graphCount++;
+        this.itemIds = props.itemIds;
+        this.itemNames = props.itemNames;
         this.labels = [];
         this.datasets = {};
         this.colors = props.colors ? props.colors : ['#ff7f0e', '#00cc00', '#ff66cc', '#0066ff', '#9966ff'];
     }
 
     componentDidMount() {
+        this.setUpGraph();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!this.compareItems(prevProps.itemNames)) {
+            document.getElementById(`graph-${this.id}_checkbox-1`).click(); //Forces an onClick() event
+            //Somehow it refreshes the checkbox '::after' settings so that when the graph reloads
+            //all lines are shown and the boxes are reset.....idk, it works
+            //REALLY NEED TO UPDATE THIS SO THAT THERE IS A MORE DIRECT LINK BETWEEN CSS AND DATA SHOWN STATES!!!
+            this.setUpGraph();  
+        }
+    }
+
+    //Requires this.itemIds, this.itemNames, this.labels, this.datasets to be setup/nulled
+    setUpGraph = () => {
+        this.nullProps();
         let promises = [];
 
-        this.itemId.forEach(element => {
+        this.itemIds.forEach(element => {
             promises.push(
                 this.api.getItemGraph(element).then(returnable => {
                     if (!returnable[0]) {
@@ -41,7 +59,7 @@ class Graph extends Component {
                     }
                     let tempPriceArr = [];
                     returnable.forEach(datapoint => {
-                        if (element === this.itemId[0]) {
+                        if (element === this.itemIds[0]) {
                             this.labels.push(new Date(datapoint.date));
                         }
                         tempPriceArr.push(datapoint.daily);
@@ -50,16 +68,37 @@ class Graph extends Component {
                 })
             )
         });
+
+        let sliceInd = Graph.rangeToTime[this.state.selectedButton].sliceInd;
+        let timeScale = Graph.rangeToTime[this.state.selectedButton].timeScale;
         
         Promise.all(promises).then(() => 
             this.setState({
                 refreshCounter: this.state.refreshCounter + 1,
                 datasets: this.datasets,
                 labels: this.labels,
-                displayData: this.formatData(this.datasets, this.labels, 0),
-                displayOptions: this.createOptions(this.datasets, 'month', 0)
+                displayData: this.formatData(this.datasets, this.labels, sliceInd),
+                displayOptions: this.createOptions(this.datasets, timeScale, this.getFillInd(sliceInd))
             })
         );
+    }
+
+    nullProps = () => {
+        this.itemIds = this.props.itemIds;
+        this.itemNames = this.props.itemNames;
+        this.datasets = {};
+        this.labels = [];
+    }
+
+    //Needed to compare each item name, comparing just the lists of items would trigger
+    //the if-statement before the new item names/ids were actually passed...
+    compareItems = (prevItemNames) => {
+        return  prevItemNames.reduce((prev,curr) => {
+            if (!this.props.itemNames.includes(curr)) {
+                return false;
+            }
+            return true && prev;
+        }, true);
     }
 
     formatData = (dataset = this.state.datasets, labels = this.state.labels, sliceInd = 0) => {
@@ -97,7 +136,7 @@ class Graph extends Component {
     getColorfromItemId = (itemId) => {
         let count = 0;
         let color = '';
-        this.itemId.forEach(id => {
+        this.itemIds.forEach(id => {
             if (id == itemId) {
                 color = this.colors[count];
             }
@@ -109,9 +148,9 @@ class Graph extends Component {
     getItemNamefromItemId = (itemId) => {
         let count = 0;
         let itemName = '';
-        this.itemId.forEach(id => {
+        this.itemIds.forEach(id => {
             if (id == itemId) {
-                itemName = this.itemName[count];
+                itemName = this.itemNames[count];
             }
             count++;
         });
@@ -213,7 +252,7 @@ class Graph extends Component {
         return Math.floor(avg);
     }
 
-    updateChart = (range = 'Year') => {
+    changeChartRange = (range = 'Year') => {
         let timeData = Graph.rangeToTime[range];
         this.setState({
             refreshCounter: this.state.refreshCounter + 1,
@@ -223,7 +262,7 @@ class Graph extends Component {
         });
     }
 
-    updateData = (dataset = this.state.datasets, itemId) => {
+    changeDisplayData = (dataset = this.state.datasets, itemId) => {
         let timeData = Graph.rangeToTime[this.state.selectedButton];
         let modifiedDatasets = JSON.parse(JSON.stringify(dataset));
         let foundItem = false;
@@ -254,8 +293,8 @@ class Graph extends Component {
             <>
                 {this.getCheckBox(amt-1)}
                 <div className={`checkBox checkBox-${amt}`}>
-                    <input type="checkbox" id={`checkOther${amt}`} onClick={() => this.updateData(this.state.datasets, this.itemId[amt-1])}></input>
-                    <label for={`checkOther${amt}`}></label>
+                    <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.changeDisplayData(this.state.datasets, this.itemIds[amt-1])}></input>
+                    <label id={`graph-${this.id}_checkbox-${amt}`} htmlFor={`graphId${this.id}-${amt}`}></label>
                 </div>
             </>
         )
@@ -266,13 +305,13 @@ class Graph extends Component {
         if (names[names.length-1] === name) {
             return (
                 <>
-                    <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.updateChart(name)}>{name}</button>
+                    <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
                 </>
             );
         }
         return (
             <>
-                <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.updateChart(name)}>{name}</button>
+                <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
                 {this.getButton(this.findNextName(names, name))}
             </>
         );
