@@ -350,14 +350,6 @@ class Graph extends Component {
             <>
                 <div className="col-sm-9 float-right mt-5">
                     <ControlBar funcs={funcsToPass} options={optsToPass}/>
-                    {/* <div className="col-sm-12 blah row">
-                        <div className="col-sm-7 justify-content-end">
-                            {this.getCheckBox(Object.keys(this.datasets).length)}
-                        </div>
-                        <div className="col-sm-5 justify-content-end btn-group pt-2">
-                            {this.getButton(Object.keys(Graph.rangeToTime)[0])}
-                        </div>
-                    </div> */}
                     <div className="row" id="graph">
                         <Line data={this.state.displayData} options={this.state.displayOptions}/>
                     </div>

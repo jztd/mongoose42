@@ -50,43 +50,43 @@ body, html, #root, .container-flex{
     opacity: 1;
 }
 
-.checkBox-1 label {
+.checkBox-0 label {
     background: #ff7f0e;
 }
 
-.checkBox-1 label:after {
+.checkBox-0 label:after {
     background-image: radial-gradient(circle, #ff7f0e, black);
 }
 
-.checkBox-2 label {
+.checkBox-1 label {
     background: #00cc00;
 }
 
-.checkBox-2 label:after {
+.checkBox-1 label:after {
     background-image: radial-gradient(circle, #00cc00, black);
 }
 
-.checkBox-3 label {
+.checkBox-2 label {
     background: #ff66cc;
 }
 
-.checkBox-3 label:after {
+.checkBox-2 label:after {
     background-image: radial-gradient(circle, #ff66cc, black);
 }
 
-.checkBox-4 label {
+.checkBox-3 label {
     background: #0066ff;
 }
 
-.checkBox-4 label:after {
+.checkBox-3 label:after {
     background-image: radial-gradient(circle, #0066ff, black);
 }
 
-.checkBox-5 label {
+.checkBox-4 label {
     background: #9966ff;
 }
 
-.checkBox-5 label:after {
+.checkBox-4 label:after {
     background-image: radial-gradient(circle, #9966ff, black);
 }
 
