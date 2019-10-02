@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Line } from 'react-chartjs-2';
 import RuneApi from './RunescapeApi';
+import {default as ControlBar} from './GraphControlBar.js';
 import './App.css';
 
 class Graph extends Component {
@@ -36,8 +37,8 @@ class Graph extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (!this.compareItems(prevProps.itemNames)) {
-            document.getElementById(`graph-${this.id}_checkbox-1`).click(); //Forces an onClick() event
+        if (!this.sameItems(prevProps.itemNames)) {
+            //document.getElementById(`graph-${this.id}_checkbox-1`).click(); //Forces an onClick() event
             //Somehow it refreshes the checkbox '::after' settings so that when the graph reloads
             //all lines are shown and the boxes are reset.....idk, it works
             //REALLY NEED TO UPDATE THIS SO THAT THERE IS A MORE DIRECT LINK BETWEEN CSS AND DATA SHOWN STATES!!!
@@ -92,7 +93,7 @@ class Graph extends Component {
 
     //Needed to compare each item name, comparing just the lists of items would trigger
     //the if-statement before the new item names/ids were actually passed...
-    compareItems = (prevItemNames) => {
+    sameItems = (prevItemNames) => {
         return  prevItemNames.reduce((prev,curr) => {
             if (!this.props.itemNames.includes(curr)) {
                 return false;
@@ -262,7 +263,7 @@ class Graph extends Component {
         });
     }
 
-    changeDisplayData = (dataset = this.state.datasets, itemId) => {
+    changeDisplayData = (itemId, dataset = this.state.datasets) => {
         let timeData = Graph.rangeToTime[this.state.selectedButton];
         let modifiedDatasets = JSON.parse(JSON.stringify(dataset));
         let foundItem = false;
@@ -285,66 +286,78 @@ class Graph extends Component {
         });
     }
 
-    getCheckBox = (amt) => {
-        if (amt < 1 || !amt) {
-            return;
-        }
-        return (
-            <>
-                {this.getCheckBox(amt-1)}
-                <div className={`checkBox checkBox-${amt}`}>
-                    <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.changeDisplayData(this.state.datasets, this.itemIds[amt-1])}></input>
-                    <label id={`graph-${this.id}_checkbox-${amt}`} htmlFor={`graphId${this.id}-${amt}`}></label>
-                </div>
-            </>
-        )
-    }
+    // getCheckBox = (amt) => {
+    //     if (amt < 1 || !amt) {
+    //         return;
+    //     }
+    //     return (
+    //         <>
+    //             {this.getCheckBox(amt-1)}
+    //             <div className={`checkBox checkBox-${amt}`}>
+    //                 <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.changeDisplayData(this.state.datasets, this.itemIds[amt-1])}></input>
+    //                 <label id={`graph-${this.id}_checkbox-${amt}`} htmlFor={`graphId${this.id}-${amt}`}></label>
+    //             </div>
+    //         </>
+    //     )
+    // }
 
-    getButton = (name) => {
-        let names = Object.keys(Graph.rangeToTime);
-        if (names[names.length-1] === name) {
-            return (
-                <>
-                    <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
-                </>
-            );
-        }
-        return (
-            <>
-                <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
-                {this.getButton(this.findNextName(names, name))}
-            </>
-        );
-    }
+    // getButton = (name) => {
+    //     let names = Object.keys(Graph.rangeToTime);
+    //     if (names[names.length-1] === name) {
+    //         return (
+    //             <>
+    //                 <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
+    //             </>
+    //         );
+    //     }
+    //     return (
+    //         <>
+    //             <button className={`btn ${this.state.selectedButton === name ? "graph-nav-active" : "graph-nav"}`} id={name} type="button" onClick={() => this.changeChartRange(name)}>{name}</button>
+    //             {this.getButton(this.findNextName(names, name))}
+    //         </>
+    //     );
+    // }
 
-    findNextName = (names, name) => {
-        let nextName = '';
-        let flag = false;
-        names.forEach(element => {
-            if (flag) {
-                nextName = element;
-                flag = false;
-            }
-            if (element === name) {
-                flag = true;
-                return;
-            }
-        });
-        return nextName;
-    }
+    // findNextName = (names, name) => {
+    //     let nextName = '';
+    //     let flag = false;
+    //     names.forEach(element => {
+    //         if (flag) {
+    //             nextName = element;
+    //             flag = false;
+    //         }
+    //         if (element === name) {
+    //             flag = true;
+    //             return;
+    //         }
+    //     });
+    //     return nextName;
+    // }
 
     render() {
+        let funcsToPass = {
+            'changeDisplayData': this.changeDisplayData,
+            'changeChartRange': this.changeChartRange
+        };
+        let optsToPass = {
+            'graphId': this.id,
+            'colors': this.colors.slice(0,this.props.itemIds.length),
+            'itemIds': this.itemIds,
+            'rangeToTime': Graph.rangeToTime,
+            'selectedButton': this.state.selectedButton
+        };
         return (
             <>
                 <div className="col-sm-9 float-right mt-5">
-                    <div className="col-sm-12 blah row">
+                    <ControlBar funcs={funcsToPass} options={optsToPass}/>
+                    {/* <div className="col-sm-12 blah row">
                         <div className="col-sm-7 justify-content-end">
                             {this.getCheckBox(Object.keys(this.datasets).length)}
                         </div>
                         <div className="col-sm-5 justify-content-end btn-group pt-2">
                             {this.getButton(Object.keys(Graph.rangeToTime)[0])}
                         </div>
-                    </div>
+                    </div> */}
                     <div className="row" id="graph">
                         <Line data={this.state.displayData} options={this.state.displayOptions}/>
                     </div>
