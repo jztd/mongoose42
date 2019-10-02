@@ -11,11 +11,8 @@ class RuneApi {
     }
 
     getItemGraph = (itemId) => {
-        //console.log("Getting graph for " + itemId + "...");
         return new Promise((resolve, reject) => {
-            //console.log("Sending request...");
             fetch("/price?id=" + itemId).then(response => response.json()).then(json => {
-                //console.log("resolving " + json);
                 resolve(json);
             });
 
@@ -30,11 +27,8 @@ class RuneApi {
     }
 
     getItemInfo = (itemName) => {
-        console.log('getting item ' + itemName);
         return new Promise((resolve, reject) => {
-            console.log("sending: " + itemName);
             fetch("/item?name="+itemName).then(response => response.json()).then(json => {
-                console.log("resolving " + json);
                 resolve(json);
             })
             .catch(error => {

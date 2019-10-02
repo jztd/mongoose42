@@ -38,13 +38,13 @@ class Item extends Component {
         if(item){
             return (
                 <>
-                    <div class="row">
-                        <div class="col-1">{item.name}</div>
-                        <div class="col-1">{item.description}</div>
-                        <img class="col-2" src={item.icon} alt={item.name} />
+                    <div className="row">
+                        <div className="col-1">{item.name}</div>
+                        <div className="col-1">{item.description}</div>
+                        <img className="col-2" src={item.icon} alt={item.name} />
                     </div>
-                    <div class="row">
-                        <div class="col-12">
+                    <div className="row">
+                        <div className="col-12">
                             <Graph itemName={[item.name, 'Steadfast Boots']} itemId={[item.id, 21787]} />
                         </div>
                     </div>
