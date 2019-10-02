@@ -45,7 +45,7 @@ class Item extends Component {
                     </div>
                     <div className="row">
                         <div className="col-12">
-                            <Graph itemName={[item.name, 'Steadfast Boots']} itemId={[item.id, 21787]} />
+                            <Graph itemNames={[item.name, 'Steadfast Boots', 'IS IT AN ITEM']} itemIds={[item.id, 21787, 2]} />
                         </div>
                     </div>
                 </>

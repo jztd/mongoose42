@@ -24,8 +24,8 @@ class Graph extends Component {
             selectedButton: "Year"
         };
         this.id = Graph.graphCount++;
-        this.itemId = props.itemId;
-        this.itemName = props.itemName;
+        this.itemIds = props.itemIds;
+        this.itemNames = props.itemNames;
         this.labels = [];
         this.datasets = {};
         this.colors = props.colors ? props.colors : ['#ff7f0e', '#00cc00', '#ff66cc', '#0066ff', '#9966ff'];
@@ -36,7 +36,7 @@ class Graph extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (!this.compareItems(prevProps.itemName)) {
+        if (!this.compareItems(prevProps.itemNames)) {
             document.getElementById(`graph-${this.id}_checkbox-1`).click(); //Forces an onClick() event
             //Somehow it refreshes the checkbox '::after' settings so that when the graph reloads
             //all lines are shown and the boxes are reset.....idk, it works
@@ -45,12 +45,12 @@ class Graph extends Component {
         }
     }
 
-    //Requires this.itemId, this.itemName, this.labels, this.datasets to be setup/nulled
+    //Requires this.itemIds, this.itemNames, this.labels, this.datasets to be setup/nulled
     setUpGraph = () => {
         this.nullProps();
         let promises = [];
 
-        this.itemId.forEach(element => {
+        this.itemIds.forEach(element => {
             promises.push(
                 this.api.getItemGraph(element).then(returnable => {
                     if (!returnable[0]) {
@@ -59,7 +59,7 @@ class Graph extends Component {
                     }
                     let tempPriceArr = [];
                     returnable.forEach(datapoint => {
-                        if (element === this.itemId[0]) {
+                        if (element === this.itemIds[0]) {
                             this.labels.push(new Date(datapoint.date));
                         }
                         tempPriceArr.push(datapoint.daily);
@@ -84,8 +84,8 @@ class Graph extends Component {
     }
 
     nullProps = () => {
-        this.itemId = this.props.itemId;
-        this.itemName = this.props.itemName;
+        this.itemIds = this.props.itemIds;
+        this.itemNames = this.props.itemNames;
         this.datasets = {};
         this.labels = [];
     }
@@ -93,19 +93,12 @@ class Graph extends Component {
     //Needed to compare each item name, comparing just the lists of items would trigger
     //the if-statement before the new item names/ids were actually passed...
     compareItems = (prevItemNames) => {
-        let returnValue = true;
-        prevItemNames.forEach(name => {
-            let flag2 = false;
-            this.props.itemName.forEach(currName => {
-                if (name === currName) {
-                    flag2 = true;
-                }
-            });
-            if (!flag2) {
-                returnValue = false;
+        return  prevItemNames.reduce((prev,curr) => {
+            if (!this.props.itemNames.includes(curr)) {
+                return false;
             }
-        });
-        return returnValue;
+            return true && prev;
+        }, true);
     }
 
     formatData = (dataset = this.state.datasets, labels = this.state.labels, sliceInd = 0) => {
@@ -143,7 +136,7 @@ class Graph extends Component {
     getColorfromItemId = (itemId) => {
         let count = 0;
         let color = '';
-        this.itemId.forEach(id => {
+        this.itemIds.forEach(id => {
             if (id == itemId) {
                 color = this.colors[count];
             }
@@ -155,9 +148,9 @@ class Graph extends Component {
     getItemNamefromItemId = (itemId) => {
         let count = 0;
         let itemName = '';
-        this.itemId.forEach(id => {
+        this.itemIds.forEach(id => {
             if (id == itemId) {
-                itemName = this.itemName[count];
+                itemName = this.itemNames[count];
             }
             count++;
         });
@@ -300,7 +293,7 @@ class Graph extends Component {
             <>
                 {this.getCheckBox(amt-1)}
                 <div className={`checkBox checkBox-${amt}`}>
-                    <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.changeDisplayData(this.state.datasets, this.itemId[amt-1])}></input>
+                    <input type="checkbox" id={`graphId${this.id}-${amt}`} onClick={() => this.changeDisplayData(this.state.datasets, this.itemIds[amt-1])}></input>
                     <label id={`graph-${this.id}_checkbox-${amt}`} htmlFor={`graphId${this.id}-${amt}`}></label>
                 </div>
             </>
