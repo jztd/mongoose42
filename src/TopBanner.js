@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import SearchBox from './SearchBox.js'
+import UserBar from './UserBar';
 import './App.css';
 
 class TopBanner extends Component{
@@ -12,6 +13,9 @@ class TopBanner extends Component{
             <>
                 <div className="col-4">
                     <SearchBox id="searchBox" label="Item Name"/>
+                </div>
+                <div className="col">
+                    <UserBar />
                 </div>
             </>
         );
