@@ -34,6 +34,7 @@ class UserBar extends Component {
         if (authenticated !== this.state.authenticated) {
             const user = await this.props.auth.getUser();
             this.setState({ authenticated, user });
+            console.log(user);
         }
     }
 
